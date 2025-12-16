@@ -1,0 +1,803 @@
+﻿#MADE IN CHINA 
+# MAIN DRECODERS
+# _DureXXX_ M1zora Sone4ka
+# Main FIXERS
+# Losyah
+# _DureXXX_
+# m0nek
+
+#--# INFO #--------------------------------------------------------------------#
+
+option.INFO=Dercode 
+option.INFO.comment=Author: _DureXXX_ & M1zora Copyright (C) 2024 HaringPro. All Rights Reserved 
+
+
+
+screen.ABOUT=§r§lVersion: 1.1
+screen.ABOUT.comment=§4RECODE §4TEAM §r/ §6§l_DureXXX_ & M1zore
+screen.FAQ=§4§lDER§r§lCODE
+screen.FAQ.comment=Derivative ReCode for more effects optimization etc | main | HaringPro | Recode team | _DureXXX_ & Mizore |
+
+#--# Profiles #----------------------------------------------------------------#
+
+
+#profile.Low=Low
+#profile.Medium=§bMedium<Default>
+#profile.High=§6High
+#profile.Ultra=§cUltra
+#profile.EXTREME=§cExtreme
+#profile.Horror=§cHorror
+
+
+
+
+profile.HIGH=§4§lH§r§ligh (Default)
+profile.MEDIUM=§a§lMedium
+profile.LOW=§b§lLow
+profile.Derivative=§b§lDerivative main
+profile.Survival=§b§lSurvival
+profile.Film=§b§lF§4§li§a§ll§f§lm
+
+
+
+profile.custom=change preset!!!
+profile.Custom=change preset!!!
+profile.CUSTOM=change preset!!!
+value.profile.custom=change preset
+value.profile.Custom=change preset
+value.profile.CUSTOM=change preset
+
+
+
+
+
+#--# Screens #-----------------------------------------------------------------#
+§4§l §f§l
+
+
+screen.World=§4§lW§f§lorld
+screen.Water=§4§lW§f§later
+screen.Transparent=§4§lT§f§lransparent
+screen.Plants=§4§lP§f§llants
+screen.Atmospherics=§4§lA§f§ltmospherics
+screen.Clouds=§4§lC§f§llouds
+screen.PC=§4§lP§f§llanar §f§lClouds
+screen.VC=§4§lV§f§lolumetric §f§lClouds
+screen.CS=§4§lC§f§lloud §f§lShadows
+screen.CC=§4§lN§f§lormal §f§lClouds
+screen.CR=§4§lR§f§lainy §f§lClouds
+screen.VRay=§4§lV§f§lolumetric §6§lL§f§Light
+screen.Lighting=§4§lL§f§lighting
+screen.Directlighting=§4§lD§f§lirect §f§lLighting
+screen.Indirectlighting=§4§lI§f§lndirect §f§lLighting
+screen.Shadows=§4§lS§f§lhadows
+screen.Surface=§4§lS§f§lurface
+screen.POM=§4§lP§f§larallax §6§lO§f§lcclusion §f§lMapping
+screen.Reflections=§4§lR§f§leflections
+screen.Emissive=§4§lE§f§lmissive
+screen.SubsurfaceScattering=§4§lS§f§lS§f§lS
+screen.SurfaceMisc=§4§lM§f§lisc
+screen.PostProcessing=§4§lP§f§lost-§f§lProcessing
+screen.Tonemap=§4§lT§f§lone §f§lMapping
+screen.Exposure=§4§lE§f§lxposure
+option.DoF=§4§lD§f§lepth §f§lof §f§lField
+screen.Bloom=§4§lB§f§lloom
+screen.TAA=§4§lT§f§lAA | §4§lC§f§lAS 
+screen.MotionBlur=§4§lM§f§lotion §f§lBlur
+screen.Vignette=§4§lV§f§lignette
+screen.Color=§4§lC§f§lolor
+screen.Bodycam=§4§lB§f§lodycam
+screen.VHS=§d§lV§f§lH§d§lS
+screen.BodycamMISC=§4§lB§f§lETA EFFECTS 
+screen.NETHER=§4§lNether Fog
+screen.NOWORK=Maby No Working
+screen.DoF=§4§lD§f§lepth §f§lof §f§lField
+screen.Camera=§4§lC§f§lamera
+screen.Chromatic_Abberation=§4§lC§f§lhromatic Aberration
+screen.DynamicLight=§4§lD§f§lynamic Light
+
+
+#--# World #-------------------------------------------------------------------#
+
+option.BORDER_FOG=§bBorder Fog
+option.BORDER_FOG_FALLOFF=Border Fog Falloff
+option.WHITE_WORLD=§7White World
+option.WHITE_WORLD.comment=Renders all opaque textures as full white.
+option.DARK_END=§8DarkEnd
+option.DARK_END.comment=The unique atmosphere during the battle with End Dragon:)
+option.RAYTRACED_REFRACTION=§eRaytraced Refraction
+option.REFRACTIVE_DISPERSION=§6Refraction Dispersion
+
+#--# Water #-------------------------------------------------------------------#
+
+option.WATER_WAVE_HEIGHT=Water Wave Height
+option.WATER_WAVE_SPEED=Water Wave Speed
+option.WATER_FOG_DENSITY=Water Fog Density
+option.WATER_FOG_DENSITY.comment=Density of water fog, higher values make the water more turbid.
+option.WATER_REFRACT_IOR=Water Reflection
+option.WATER_CAUSTICS=§bWater Caustics
+option.WATER_CAUSTICS.comment=The dispersion of photons formed when light passes through water and is projected to the bottom of the water.
+option.WATER_PARALLAX=§eWater Parallax
+option.WATER_PARALLAX.comment=Parallax effect caused by water waves.
+option.WATER_STYLE=Water Wave Style
+option.WATER_STYLE.comment=0-Default 1-BSL 2-flat 3-der+bliss 4-Bliss
+option.WATER_STYLE.0=Default
+option.WATER_STYLE.1=BSL
+option.WATER_STYLE.2=Flat
+option.WATER_STYLE.3=Classic
+option.WATER_STYLE.4=Bliss
+
+#--# Transparent #-------------------------------------------------------------#
+
+option.GLASS_TEXTURE_ALPHA=Stained Glass Texture Alpha
+option.GLASS_TEXTURE_ALPHA.comment=Higher values result in sharper textures. Also affects ice, slime blocks and etc.
+option.GLASS_REFRACT_IOR=Ice Reflection
+option.GLASS_REFRACT_IOR.comment=Also affects ice, slime blocks and etc.
+
+#--# Plants #------------------------------------------------------------------#
+
+option.PLANTS_WAVE_EFFECTS=§bPlants Wave Effects
+option.PLANTS_TOUCH_EFFECTS=§ePlants Touch Effects
+option.PLANTS_TOUCH_EFFECTS.comment=Displacement of some plants when in contact with them.
+option.GENERAL_GRASS_FIX=General Grass Fix
+option.GENERAL_GRASS_FIX.comment=Detect if an unspecified block is a plant by normals.
+
+#--# Atmospherics #------------------------------------------------------------#
+
+option.VOLUMETRIC_CLOUDS=§6Volumetric Clouds
+option.PLANAR_CLOUDS=§6Planar Clouds
+option.LAND_ATMOSPHERIC_SCATTERING=§bLand Atmospheric Scattering
+option.SKY_GROUND=§6Sky Ground
+option.AURORA=§eAurora
+option.AURORA_STRENGTH=Aurora Strength
+option.STARS_INTENSITY=Stars Intensity
+option.STARS_COVERAGE=Stars Coverage
+option.SKY_RENDER_RESOLUTION=Skybox Render Resolution
+option.ATMOSPHERE_BOTTOM_ALTITUDE=Atmosphere Bottom Altitude
+option.ATMOSPHERE_TOP_ALTITUDE=Atmosphere Top Altitude
+prefix.ATMOSPHERE_BOTTOM_ALTITUDE=-
+
+#--# Clouds #------------------------------------------------------------------#
+
+option.TEMPORAL_UPSCALING=§4§lT§f§lemporal Upscaling
+suffix.TEMPORAL_UPSCALING=x
+option.MAX_BLENDED_FRAMES=§4§lM§f§lax Blended Frames
+option.FULL_AERIAL_PERSPECTIVE=§4§lF§f§lull Aerial Perspective
+option.CLOUDS_SPEED=§4§lC§f§llouds Speed
+option.CLOUD_CUMULUS_SUNLIGHT_SAMPLES=§4§lS§f§lunlight Samples
+option.CLOUD_CUMULUS_SKYLIGHT_SAMPLES=§4§lS§f§lkylight Samples
+option.CLOUD_CUMULUS_CLEAR_ALTITUDE=§4§lA§f§lltitude
+option.CLOUD_CUMULUS_CLEAR_ALTITUDE.comment=Height of the volumetric clouds from sea level. Higher values cause the volumetric clouds to be generated at a higher altitude.
+suffix.CLOUD_CUMULUS_CLEAR_ALTITUDE=(x3)m
+option.CLOUD_CUMULUS_CLEAR_THICKNESS=§4§lT§f§lhickness
+option.CLOUD_CUMULUS_CLEAR_THICKNESS.comment=Vertical coverage of volumetric clouds. Higher values result in thicker volumetric clouds.
+suffix.CLOUD_CUMULUS_CLEAR_THICKNESS=m
+option.CLOUD_CUMULUS_CLEAR_COVERY=§4§lC§f§loverage
+option.CLOUD_CUMULUS_CLEAR_COVERY.comment=Horizontal coverage of volumetric clouds. Higher values result in volumetric clouds with larger areas.
+option.CLOUD_CUMULUS_CLEAR_DENSITY=§4§lD§f§lensity
+option.CLOUD_CUMULUS_CLEAR_DENSITY.comment=Density of surfaces of the volumetric clouds. Higher values result in clearer edges of the volumetric clouds.
+option.CLOUD_CUMULUS_CLEAR_SUNLIGHTING=§4§lS§f§lunlight Intensity
+option.CLOUD_CUMULUS_CLEAR_SKYLIGHTING=§4§lS§f§lkylight Intensity
+option.CLOUD_CUMULUS_CLEAR_HIGHLIGHT_BRIGHTNESS=§4§lD§f§liffused Highlight Brightness
+option.CLOUD_CUMULUS_RAIN_ALTITUDE=§4§lA§f§lltitude
+option.CLOUD_CUMULUS_RAIN_ALTITUDE.comment=Height of the volumetric clouds from sea level. Higher values cause the volumetric clouds to be generated at a higher altitude.
+suffix.CLOUD_CUMULUS_RAIN_ALTITUDE=(x3)m
+option.CLOUD_CUMULUS_RAIN_THICKNESS=§4§lT§f§lhickness
+option.CLOUD_CUMULUS_RAIN_THICKNESS.comment=Vertical coverage of volumetric clouds. Higher values result in thicker volumetric clouds.
+suffix.CLOUD_CUMULUS_RAIN_THICKNESS=m
+option.CLOUD_CUMULUS_RAIN_COVERY=§4§lC§f§loverage
+option.CLOUD_CUMULUS_RAIN_COVERY.comment=Horizontal coverage of volumetric clouds. Higher values result in volumetric clouds with larger areas.
+option.CLOUD_CUMULUS_RAIN_DENSITY=§4§lD§f§lensity
+option.CLOUD_CUMULUS_RAIN_DENSITY.comment=Density of surfaces of the volumetric clouds. Higher values result in clearer edges of the volumetric clouds.
+option.CLOUD_CUMULUS_RAIN_SUNLIGHTING=§4§lS§f§lunlight Intensity
+option.CLOUD_CUMULUS_RAIN_SKYLIGHTING=§4§lS§f§lkylight Intensity
+option.CLOUD_CUMULUS_RAIN_HIGHLIGHT_BRIGHTNESS=§4§lD§f§liffused Highlight Brightness
+option.CLOUD_CUMULUS_SAMPLES=§4§lS§f§lamples
+option.CLOUD_LOCAL_COVERAGE=§4§lL§f§local Coverage
+option.CLOUD_LOCAL_COVERAGE.comment=Adjusts the coverage of the volumetric clouds using noises. Random distribution on a large scale.
+option.CIRRUS_CLOUDS=§4§lC§f§lirrus Clouds
+value.CIRRUS_CLOUDS.0=Off
+value.CIRRUS_CLOUDS.1=Type 1
+value.CIRRUS_CLOUDS.2=Type 2
+option.CIRROCUMULUS_CLOUDS=§6§lCirrocumulus Clouds
+option.CLOUDS_WEATHER=§a§lCloud Weather
+#option.WEATHER_CLOUDS=§b§lPlanar Cloud Type
+#value.WEATHER_CLOUDS.0=§e§lCirrus Only
+#value.WEATHER_CLOUDS.1=§6§lCirrocumulus Only
+#value.WEATHER_CLOUDS.2=§a§lCirrus+Cirrocumulus(Weather System ON)
+option.CLOUD_PLANE_ALTITUDE=§4§lA§f§lltitude
+option.CLOUD_PLANE_ALTITUDE.comment=Height of the planar clouds from sea level. Higher values cause the planar clouds to be generated at a higher altitude.
+suffix.CLOUD_PLANE_ALTITUDE=m
+option.CLOUD_PLANE0_DENSITY=§4§lD§f§lensity
+option.CLOUD_PLANE0_DENSITY.comment=The degree of clustering of plane clouds. Higher values cause plane clouds to cluster closer together.
+option.CLOUD_PLANE0_COVERY=§4§lC§f§loverage
+option.CLOUD_PLANE0_COVERY.comment=Horizontal stretching of flat clouds. Higher values will make the plane cloud look wider.
+option.CLOUD_PLANE1_DENSITY=§4§lD§f§lensity
+option.CLOUD_PLANE1_DENSITY.comment=The degree of clustering of plane clouds. Higher values cause plane clouds to cluster closer together.
+option.CLOUD_PLANE1_COVERY=§4§lC§f§loverage
+option.CLOUD_PLANE1_COVERY.comment=Horizontal stretching of flat clouds. Higher values will make the plane cloud look wider.
+option.CLOUDS_SHADOW=§6§lClouds Shadows
+option.PC_SHADOW=§a§llanar Clouds Shadows
+option.VC_SHADOW=§b§lVolumetric Clouds Shadows
+
+#--# Volumetric Ray #----------------------------------------------------------#
+
+option.VOLUMETRIC_FOG=§6Volumetric Fog
+option.FOG_TYPE=§bFog Type
+value.FOG_TYPE.0=§b§lNo Noise(Low)
+value.FOG_TYPE.1=§a§lCloudy Fog Lite(Medium)
+value.FOG_TYPE.2=§6§lCloudy Fog(High)
+value.FOG_TYPE.3=§4§lCloudy Sea(Ultra)
+option.RAY_STAINED_GLASS_TINT=§aStained Glass Tint
+option.VOLUMETRIC_FOG_DENSITY=Volumetric Fog Density
+option.VOLUMETRIC_FOG_FALLOFF=Volumetric Fog Falloff
+option.VOLUMETRIC_FOG_SAMPLES=Volumetric Fog & Volumetric Light Samples
+option.SEA_LEVEL=Sea Level
+option.FALLOFF_START=Falloff Start
+option.VOLUMETRIC_LIGHT=§6Volumetric Light
+option.VOLUMETRIC_LIGHT_STRENGTH=Volumetric Light Strength
+option.UW_VOLUMETRIC_LIGHT=§eUnderwater Volumetric Light
+option.UW_VOLUMETRIC_LIGHT_STRENGTH=Underwater Volumetric Light Strength
+option.UW_VOLUMETRIC_LIGHT_LENGTH=Underwater Volumetric Light Sampling Length
+
+#--# Shadow #------------------------------------------------------------------#
+
+option.SHADOW_MAP_BIAS=Shadow Map Bias
+option.shadowMapResolution=Shadow Resolution
+option.shadowMapResolution.comment=Smoothness of shadows. Higher values result in smoother shadows.
+suffix.shadowMapResolution=
+option.shadowDistance=Shadow Render Distance
+value.shadowDistance.64.0=§b§l4 Chunks
+value.shadowDistance.80.0=§b§l5 Chunks
+value.shadowDistance.96.0=§b§l6 Chunks
+value.shadowDistance.112.0=§b§l7 Chunks
+value.shadowDistance.128.0=§a§l8 Chunks
+value.shadowDistance.160.0=§a§l10 Chunks
+value.shadowDistance.192.0=§a§l12 Chunks
+value.shadowDistance.224.0=§6§l14 Chunks
+value.shadowDistance.256.0=§6§l16 Chunks
+value.shadowDistance.320.0=§6§l20 Chunks
+value.shadowDistance.384.0=§6§l24 Chunks
+value.shadowDistance.512.0=§6§l32 Chunks
+value.shadowDistance.768.0=§6§l48 Chunks
+value.shadowDistance.1024.0=§6§l64 Chunks
+value.shadowDistance.2048.0=§4§l128 Chunks
+value.shadowDistance.4096.0=§4§l256 Chunks
+value.shadowDistance.8192.0=§o§4§l§k1§4§l§o512 Chunks §o§4§l[not recomended]§o§4§l§k1
+value.shadowDistance.16384.0=§o§4§l§k1§4§l§o1024 Chunks §o§4§l[not recomended]§o§4§l§k1
+value.shadowDistance.32768.0=§o§4§l§k1§4§l§o2048 Chunks §o§4§l[not recomended]§o§4§l§k1
+value.shadowDistance.65536.0=§o§4§l§k1§4§l§o4096 Chunks §o§4§l[not recomended]§o§4§l§k1
+suffix.shadowDistance=§a§lBlocks
+option.PCF_SAMPLES=Filtering Samples
+option.COLORED_SHADOWS=§bStained Glass Colored Shadows
+option.SCREEN_SPACE_SHADOWS=§dScreen Space Shadows
+option.SHADOW_BACKFACE_CULLING=§cShadow Backface Culling
+option.DH_SHADOW=§eDistant Horizons Shadowing
+
+#--# Lighting #----------------------------------------------------------------#
+
+
+option.DYNAMIC_LIGHT_INTENSITY=§6HandLight Intensity
+option.HELD_LIGHT_COLOR_ENABLED=§6ColorDynamicLight [no voxel]
+value.HELD_LIGHT_COLOR_ENABLED.0=Off
+value.HELD_LIGHT_COLOR_ENABLED.1=On
+option.DYNAMIC_LIGHT_COLOR_INTENSITY=§6ColorLight Intensity
+option.BASIC_BRIGHTNESS=§bBasic Brightness
+option.BASIC_BRIGHTNESS_NETHER=§bNether Basic Brightness
+option.BASIC_BRIGHTNESS_END=§bEnd Basic Brightness
+option.sunPathRotation=Sun Path Rotation Angle
+suffix.sunPathRotation=°
+option.SUNLIGHT_INTENSITY=Sunlight Intensity
+option.SUNLIGHT_INTENSITY.comment=Intensity of Sunlight. Higher values will make the sunlight brighter
+option.SKYLIGHT_INTENSITY=Skylight Intensity
+option.SKYLIGHT_INTENSITY.comment=Intensity of Skylight. Higher values will make the skylight brighter
+option.NIGHT_BRIGHTNESS=Night Brightness
+option.NIGHT_BRIGHTNESS.comment=The atmosphere and illumination brightness at night. Higher values will make the night brighter
+option.TORCHLIGHT_BRIGHTNESS=Light Source Brightness
+option.TORCHLIGHT_BRIGHTNESS.comment=Brightness of light sources. Higher values will make the light brighter
+option.TORCHLIGHT_COLOR_TEMPERATURE=Light Source Color Temperature
+option.TORCHLIGHT_COLOR_TEMPERATURE.comment=Color temperature of light sources.
+suffix.TORCHLIGHT_COLOR_TEMPERATURE=K
+option.HELD_TORCHLIGHT=§e[old] Handheld Lighting 
+option.HELD_TORCHLIGHT.comment=Handheld light sources can light up around
+option.HELDLIGHT_BRIGHTNESS=Handheld Lighting Brightness
+option.SSAO_ENABLED=§bScreen Space Ambient Occlusion
+option.SSAO_ENABLED.comment=Adds soft shadow-y darkness around surface contact or intersection.
+option.SSAO_SAMPLES=Ambient Occlusion Samples
+option.SSAO_STRENGTH=Ambient Occlusion Strength
+option.GI_ENABLED=§6Global Illumination
+option.GI_ENABLED.comment=Enables RSM(Reflective Shadow Maps) global illumination. Simulates sunlight diffuse reflections.
+option.GI_SAMPLES=Global Illumination Samples
+option.GI_SAMPLES.comment=Global illumination quality. Higher values result in fewer artifacts.
+option.GI_RENDER_RESOLUTION=Global Illumination Render Resolution
+option.GI_RENDER_RESOLUTION.comment=Global illumination render resolution. Lower resolutions result in more significant aliasing.
+option.GI_RADIUS=Global Illumination Radius
+option.GI_RADIUS.comment=Radius of Global Illumination. Higher values will make it spread farther
+option.GI_BRIGHTNESS=Global Illumination Brightness
+option.VOXEL_SS=§6No Voxelizing [Enabled Normal/Default Lighting]
+option.VOXEL_SS.comment=OFF = voxel lighting work 50/50 this beta maybe more system not work this! Including more visuals! BETA!
+
+#--# Surface #-----------------------------------------------------------------#
+
+option.ANISOTROPIC_FILTER=Anisotropic Filter
+value.ANISOTROPIC_FILTER.0=Off
+value.ANISOTROPIC_FILTER.2=2x
+value.ANISOTROPIC_FILTER.4=4x
+value.ANISOTROPIC_FILTER.8=8x
+value.ANISOTROPIC_FILTER.16=16x
+value.ANISOTROPIC_FILTER.32=32x
+value.ANISOTROPIC_FILTER.64=64x
+option.TEXTURE_FORMAT=§bPBR Format
+value.TEXTURE_FORMAT.0=§eLab PBR
+value.TEXTURE_FORMAT.1=§6SEUS PBR
+option.NORMAL_MAP=Normal Mapping
+option.NORMAL_MAP.comment=Pre option for effects such as parallax. Please enable this option when using resource packs with normal maps.
+option.SPECULAR_MAP=Specular Mapping
+option.SPECULAR_MAP.comment=Pre option for effects such as reflections. Please enable this option when using resource packs with specular maps.
+option.POROSITY=labPBR Porosity
+option.TEXTURE_RESOLUTION=Texture Resolution
+option.PARALLAX=§6Parallax
+option.PARALLAX.comment=When supported by the resource packs, adds bumpy details to surfaces. Results in different details at different viewing angles.
+option.SMOOTH_PARALLAX=§bSmooth Parallax
+option.PARALLAX_SHADOW=Parallax Shadows
+option.PARALLAX_SAMPLES=Parallax Samples
+option.PARALLAX_SAMPLES.comment=Adjusting this option could significantly improve parallax quality, but also impact performance by an important amount.
+option.PARALLAX_REFINEMENT=§aParallax Refinement
+option.PARALLAX_REFINEMENT_STEPS.comment=Enabling this option could improve parallax sampling with a slight impact to performance.
+option.PARALLAX_REFINEMENT_STEPS=Parallax Refinement Steps
+option.PARALLAX_DEPTH=Parallax Depth
+option.PARALLAX_DEPTH.comment=Parallax depth. Higher values will increase the height difference.
+option.PARALLAX_BASED_NORMAL=Parallax Based Normal
+option.PARALLAX_BASED_NORMAL.comment=Using normal generated from parallax data but not normalmap sample when there is parallax depth.
+option.SPECULAR_HIGHLIGHT_BRIGHTNESS=Specular Highlight Brightness
+option.ROUGH_REFLECTIONS=§eRough Reflections
+option.ROUGH_REFLECTIONS.comment=Enables roughness GGX VNDF. Severely impacts performance and causes a large amount of noise.
+option.ROUGH_REFLECTIONS_THRESHOLD=§eRough Reflections Threshold
+option.REFLECTION_FILTER=§6Reflection Filtering
+option.REFLECTION_FILTER.comment=Reduces the noise caused by roughness reflections.
+option.HQ_TRACING=§dHigh-Quality Tracing
+option.RAYTRACE_REFINEMENT=§aRay Tracing Refinement
+option.RAYTRACE_REFINEMENT_STEPS=Ray Tracing Refinement Steps
+option.RAIN_SPLASH_EFFECT=§aRain Splash Effects
+option.RAIN_SPLASH_EFFECT.comment=Circular waves formed by raindrops during rain.
+option.FORCE_WET_EFFECT=§bWet Effects During Rain
+option.FORCE_WET_EFFECT.comment=Simulation of surface water accumulation during rain.
+option.RAIN_SPLASH_BILATERAL=Bilateral Filtering for Rain Splash
+option.RAIN_SPLASH_BILATERAL.comment=Uses smooth raindrops instead of precise pixel raindrops.
+option.RAYTRACE_SAMPLES=Ray Tracing Samples
+option.RAYTRACE_SAMPLES.comment=Number of trace samples for screen space reflections.
+option.SPECULAR_TAIL_CLAMP=Tail Clamping
+option.SPECULAR_TAIL_CLAMP.comment=Clamps jitters in rough reflections.
+option.EMISSION_MODE=§6Emissive Mode
+value.EMISSION_MODE.0=Hardcoded
+value.EMISSION_MODE.1=Hardcoded+PBR
+value.EMISSION_MODE.2=PBR Only
+option.EMISSION_BRIGHTNESS=Emissive Brightness
+option.EMISSIVE_CURVE=Emissive Curve
+option.EMISSIVE_ORES=§eEmissive Ores
+option.EMISSIVE_SELECT_OUTLINE=§bEmissive Select Outline
+option.SUBSERFACE_SCATTERING_MODE=§bSSS
+value.SUBSERFACE_SCATTERING_MODE.0=Hardcoded
+value.SUBSERFACE_SCATTERING_MODE.1=Hardcoded+labPBR
+value.SUBSERFACE_SCATTERING_MODE.2=labPBR Only
+option.SUBSERFACE_SCATTERING_STRENTGH=SSS Strength
+option.BOAT_LEAK_FIX=Boat Leak Fix
+option.BOAT_LEAK_FIX.comment=Possible issues with resource packs that have modified the boat's model.
+option.ENTITY_STATUS_COLOR=§cEntity Status Color
+option.ENTITY_STATUS_COLOR.comment=Color changes when entities are damaged or otherwise.
+option.ENTITY_EYES_LIGHTING=§6Glowing Entity Eyes
+option.ENTITY_EYES_LIGHTING.comment=Glowing effects of some entities and some entity's eyes.
+option.RAIN_SPARKLE=§bRain Sparkle
+option.RAIN_SPARKLE.comment=Simulation of the sparkling effect of raindrops.
+option.MOD_BLOCK_SUPPORT=§cMod Block Support
+
+#--# Post Processing #---------------------------------------------------------#
+
+option.CHROMATIC_ABERRATION_ENABLED=§a§lC§f§lA §f§lEnable
+value.CHROMATIC_ABERRATION_ENABLED.1=On
+value.CHROMATIC_ABERRATION_ENABLED.0=Off
+
+option.CHROMATIC_ABERRATION_STRENGTH=§a§lC§f§lromatic §f§lStrength
+
+option.CHROMATIC_ABERRATION_CENTER=§a§lC§f§lromatic FOV [dist ca to crosshair]
+
+option.CHROMATIC_ABERRATION_STYLE=§a§lC§f§lromatic Style
+value.CHROMATIC_ABERRATION_STYLE.1=Classic
+value.CHROMATIC_ABERRATION_STYLE.2=OLD 3D
+value.CHROMATIC_ABERRATION_STYLE.3=RGB DYNAMIC
+value.CHROMATIC_ABERRATION_STYLE.4=Blue+Green
+
+screen.DynamicCamera=§4§lE§f§lye Shift
+option.EYE_SQUINT_ENABLED=§a§lS§f§lhift Eye
+value.EYE_SQUINT_ENABLED.0-Off 
+value.EYE_SQUINT_ENABLED.1=On
+option.EYE_SQUINT_SPEED=§a§lA§f§lnimation Speed [no work]
+option.EYE_SQUINT_MAX=§a§lIDK§f§lWHAT THIS OPTION XD
+option.EYE_SQUINT_SOFTNESS=§a§lS§f§loftness
+option.EYE_SQUINT_HEIGHT_PIXELS=§a§lP§f§lixel Close Size
+option.EYE_SQUINT_OFFSET=§a§lO§f§lffset
+
+screen.Lens=§4§lD§f§lirty Lens
+
+option.DIRT_STYLE=§a§lS§f§ltyle
+value.DIRT_STYLE.0=§fOff
+value.DIRT_STYLE.1=§4§lA§f§lstralex
+value.DIRT_STYLE.2=BodyCam
+value.DIRT_STYLE.3=Big Dirt
+value.DIRT_STYLE.4=Blink
+option.DIRT_STRENGTH=§a§lS§f§ltrength
+option.DIRTY_LENS_STRENGTH=§a§lD§f§lirty Strength
+option.DIRTY_LENS_BLOOM_STRENGTH=§a§lD§f§lirty Bloom
+
+
+
+
+
+
+option.SOFT_BLOOM_ENABLED=§a§lS§f§loft Bloom
+option.SOFT_BLOOM_AMOUNT=§a§lS§f§ltrength
+option.SOFT_BLOOM_RADIUS=§a§lR§f§ladius
+option.SOFT_BLOOM_QUALITY=§a§lQ§f§luality [LOD]
+option.FOG_BLOOM_INTENSITY=§a§lI§f§lntensity Fog Soft bloom
+option.FOG_BLOOM_RAIN_INTENSITY=§a§lI§f§lntensity Rain Soft bloom
+option.FOG_BLOOM_MULTIPLIER=§a§lM§f§lultiplier Soft bloom
+
+option.BODYCAM_CHROMA_STRENGTH=§a§lWARN§f§A BCCHROMA !!! turn off CA and turn on BodyCam !!!
+
+
+option.PURKINJE_SHIFT=RealNightLight §a§l[recoment to use]
+option.CINEMATIC_EFFECT=§a§lC§f§linematic §f§lEffect
+option.DOF_ENABLED=§a§lD§f§lepth §f§lof §f§lField
+option.DOF_CHROMA_DISPERSION=§a§lD§f§loF §f§lChroma §f§lDispersion
+option.FOCUS_MODE=§a§lF§f§locus §f§lMode
+value.FOCUS_MODE.0=Automatic
+value.FOCUS_MODE.1=Manual
+option.MANUAL_FOCUS=§a§lM§f§lanual §f§lFocus
+suffix.MANUAL_FOCUS=m
+option.DOF_SAMPLES=§a§lD§f§loF §f§lSamples
+option.DOF_INTENSITY=§a§lD§f§loF §f§lIntensity
+option.DOF_ANAMORPHIC_RATIO=§a§lD§f§loF §f§lAnamorphic §f§lRatio
+option.CAMERA_APERTURE=§a§lC§f§lamera §f§lAperture
+option.FOCUSING_SPEED=§a§lF§f§locusing §f§lSpeed
+option.AUTO_EXPOSURE=§a§lA§f§luto §f§lExposure
+option.EXPOSURE_SPEED=§a§lE§f§lxposure §f§lSpeed
+option.AUTO_EXPOSURE_LOD=§a§lA§f§luto §f§lExposure §f§lLod
+option.AUTO_EXPOSURE_BIAS=§a§lA§f§luto §f§lExposure §f§lBias
+option.MANUAL_EXPOSURE_VALUE=§a§lM§f§lanual §f§lExposure §f§lValue
+option.TAA_ENABLED=§a§lT§f§lemporal §f§lAnti-§f§lAliasing
+option.TAA_ENABLED.comment=Uses previous frames and jitters to filter the next frame to smooth the image and tries to eliminate aliasing. Could cause blurry images when moving too fast. When the render resolution is too low, it could cause significant jitters. When FPS is too low, it could result in longer time to get a smooth image.
+option.TAA_SHARPEN=§a§lT§f§lAA §f§lSharpening
+option.TAA_SHARPNESS=§a§lT§f§lAA §f§lSharpness
+option.MOTION_BLUR=§a§lM§f§lotion §f§lBlur
+option.MOTION_BLUR.comment=Applies blur to the image when moving the camera.
+option.MOTION_BLUR_SAMPLES=§a§lM§f§lotion §f§lBlur §f§lSamples
+option.MOTION_BLUR_STRENGTH=§a§lM§f§lotion §f§lBlur §f§lStrength
+option.BLOOM_ENABLED=§a§lB§f§lloom
+option.BLUR_SAMPLES=§a§lB§f§llur §f§lSamples
+value.BLUR_SAMPLES.1=3x3
+value.BLUR_SAMPLES.2=5x5
+value.BLUR_SAMPLES.3=7x7
+value.BLUR_SAMPLES.4=9x9
+value.BLUR_SAMPLES.5=11x11
+value.BLUR_SAMPLES.6=13x13
+option.BLOOM_AMOUNT=§a§lB§f§lloom §f§lAmount
+option.BLOOM_AMOUNT.comment=Glow on bright things. Higher values cause larger affected areas and more blurry images.
+option.BLOOMY_FOG=§a§lF§f§log §f§lLight Propagation
+option.BLOOMY_FOG.comment=Uses bloom to simulate fog scattering.
+option.VIGNETTE_ENABLED=§a§lV§f§lignette
+option.VIGNETTE_STRENGTH=§a§lV§f§lignette §f§lStrength
+
+#--# Bodycam Effects #---------------------------------------------------------#
+
+option.BODYCAM_ENABLED=§bBodycam Effect
+option.BODYCAM_ENABLED.comment=Enables bodycam-style visual effects, including distortions, chromatic aberration, noise, and more.
+value.BODYCAM_ENABLED.0=Off
+value.BODYCAM_ENABLED.1=On
+option.DISTORTION_STRENGTH=Fisheye Distortion Strength
+option.DISTORTION_STRENGTH.comment=Controls the intensity of the fisheye lens distortion effect.
+option.HORIZONTAL_EDGE_STRENGTH=Horizontal Edge Distortion
+option.HORIZONTAL_EDGE_STRENGTH.comment=Strength of distortion at horizontal edges.
+option.VERTICAL_EDGE_STRENGTH=Vertical Edge Distortion
+option.VERTICAL_EDGE_STRENGTH.comment=Strength of distortion at vertical edges.
+option.CORNER_DISTORT_STRENGTH=Corner Distortion Strength
+option.CORNER_DISTORT_STRENGTH.comment=Strength of distortion at image corners.
+option.CIRCULAR_DISTORT_STRENGTH=Circular Distortion Strength
+option.CIRCULAR_DISTORT_STRENGTH.comment=Strength of circular distortion effect.
+option.ZOOM=Image Zoom Level
+option.ZOOM.comment=Controls the zoom level of the image.
+option.CHROMA_ABER_STRENGTH=Chromatic Aberration Strength
+option.CHROMA_ABER_STRENGTH.comment=Intensity of chromatic aberration effect.
+option.NOISE_STRENGTH=Noise Strength
+option.NOISE_STRENGTH.comment=Amount of noise added for bodycam effect.
+option.FLICKER_STRENGTH=Brightness Flicker Strength
+option.FLICKER_STRENGTH.comment=Intensity of brightness flickering effect.
+option.SCANLINE_STRENGTH=Scanline Effect Strength
+option.SCANLINE_STRENGTH.comment=Strength of scanline effect.
+option.SCANLINE_WIDTH=Scanline Density
+option.SCANLINE_WIDTH.comment=Density of scanlines across the image.
+option.EXPOSURE=Exposure Level
+option.EXPOSURE.comment=Adjusts the exposure level (-ve for darker, +ve for brighter).
+option.VIGNETTE_STRENGTH=Main Vignette Strength
+option.VIGNETTE_STRENGTH.comment=Strength of the main vignette effect.
+option.VIGNETTE_RADIUS=Main Vignette Radius
+option.VIGNETTE_RADIUS.comment=Radius of the main vignette effect.
+option.CORNER_VIGNETTE_STRENGTH=Corner Vignette Strength
+option.CORNER_VIGNETTE_STRENGTH.comment=Strength of vignette effect at corners.
+option.INTENSITY_CAM_SHAKE=Camera Shake Intensity
+option.INTENSITY_CAM_SHAKE.comment=Intensity of camera shake effect.
+option.BLACK_STRIPES_WIDTH=Black Stripes Width
+option.BLACK_STRIPES_WIDTH.comment=Width of black stripes at screen edges.
+option.BLACK_STRIPES_SOFT=Black Stripes Edge Softness
+option.BLACK_STRIPES_SOFT.comment=Softness of black stripe edges.
+option.SATURATION=Color Saturation
+option.SATURATION.comment=Adjusts the color saturation of the image.
+option.BRIGHTNESS=Brightness Adjustment
+option.BRIGHTNESS.comment=Adjusts the overall brightness of the image.
+option.CONTRAST=Contrast Adjustment
+option.CONTRAST.comment=Adjusts the contrast of the image.
+option.IMAGE_ROUNDING_RADIUS=Image Rounding Distortion Radius
+option.IMAGE_ROUNDING_RADIUS.comment=Radius for image rounding distortion.
+option.IMAGE_VERTICAL_STRENGTH=Vertical Image Rounding Strength
+option.IMAGE_VERTICAL_STRENGTH.comment=Strength of vertical image rounding.
+option.IMAGE_HORIZONTAL_STRENGTH=Horizontal Image Rounding Strength
+option.IMAGE_HORIZONTAL_STRENGTH.comment=Strength of horizontal image rounding.
+option.IMAGE_ROUND_STRENGTH=Circular Image Mask Strength
+option.IMAGE_ROUND_STRENGTH.comment=Strength of the circular image mask.
+option.BLACK_FOV=Black FOV Rounding
+option.BLACK_FOV.comment=Field of view for black rounding effect.
+option.LENS_STRENGTH=Lens Effect Strength
+option.LENS_STRENGTH.comment=Strength of the lens distortion effect.
+option.MOTION_BLUR_RADIUS=Motion Blur (Shake) Radius
+option.MOTION_BLUR_RADIUS.comment=Radius of motion blur caused by camera shake.
+option.MOTION_BLUR_STRENGTH=Motion Blur (Shake) Strength
+option.MOTION_BLUR_STRENGTH.comment=Strength of motion blur caused by camera shake.
+option.MOTION_BLUR_MOUSE_STRENGTH=Motion Blur (Mouse) Strength
+option.MOTION_BLUR_MOUSE_STRENGTH.comment=Strength of motion blur based on mouse movement.
+option.IMAGE_POSITION=AXON Image Position
+option.IMAGE_POSITION.comment=Position of the AXON.png overlay (0 = right, 1 = left).
+value.IMAGE_POSITION.0=Right
+value.IMAGE_POSITION.1=Left
+option.GLITCH_STRENGTH=Glitch Distortion Strength
+option.GLITCH_STRENGTH.comment=Strength of the glitch distortion effect.
+option.ENABLE_HORIZONTAL_GLITCH=Enable Horizontal Glitch
+option.ENABLE_HORIZONTAL_GLITCH.comment=Enables horizontal glitch effect.
+value.ENABLE_HORIZONTAL_GLITCH.0=Off
+value.ENABLE_HORIZONTAL_GLITCH.1=On
+option.HAND_SWAY_STRENGTH=Hand Sway Strength
+option.HAND_SWAY_STRENGTH.comment=Strength of the hand sway effect.
+option.LENS_FLARE_STRENGTH=Lens Flare Intensity
+option.LENS_FLARE_STRENGTH.comment=Intensity of the lens flare effect.
+option.LENS_FLARE_SCALE=Lens Flare Size
+option.LENS_FLARE_SCALE.comment=Size of the lens flare effect.
+option.LENS_FLARE_STREAKS=Number of Flare Streaks
+option.LENS_FLARE_STREAKS.comment=Number of streaks in the lens flare effect.
+option.CHROMATIC_ABERRATION=Chromatic Aberration
+option.CHROMATIC_ABERRATION.comment=Intensity of chromatic aberration effect for bodycam and VHS.
+option.ZOOM_NEW=New Zoom Level
+option.ZOOM_NEW.comment=Adjusts the updated zoom level for the image.
+option.DIST_STRENGTH=Distortion Strength
+option.DIST_STRENGTH.comment=Overall strength of distortion effects.
+option.VIGNETTE_RADIUS_NEW=New Vignette Radius
+option.VIGNETTE_RADIUS_NEW.comment=Updated radius for the vignette effect.
+option.VIGNETTE_STRENGTH_NEW=New Vignette Strength
+option.VIGNETTE_STRENGTH_NEW.comment=Updated strength for the vignette effect.
+option.BLACK_STRIPES_WIDTH_NEW=New Black Stripes Width
+option.BLACK_STRIPES_WIDTH_NEW.comment=Updated width of black stripes at screen edges.
+option.BLACK_STRIPES_SOFT_NEW=New Black Stripes Edge Softness
+option.BLACK_STRIPES_SOFT_NEW.comment=Updated softness of black stripe edges.
+option.SCANLINE=Scanline Effect
+option.SCANLINE.comment=Enables scanline effect.
+value.SCANLINE.0=Off
+value.SCANLINE.1=On
+option.SCANLINE_STRENGTH_NEW=New Scanline Strength
+option.SCANLINE_STRENGTH_NEW.comment=Updated strength of the scanline effect.
+option.SCANLINE_WIDTH_NEW=New Scanline Density
+option.SCANLINE_WIDTH_NEW.comment=Updated density of scanlines across the image.
+option.INTENSITY_CAM_SHAKE_NEW=New Camera Shake Intensity
+option.INTENSITY_CAM_SHAKE_NEW.comment=Updated intensity of camera shake effect.
+option.NVG=Night Vision Goggles
+option.NVG.comment=Enables night vision goggles effect.
+value.NVG.0=Off
+value.NVG.1=On
+
+#--# VHS Effects #-------------------------------------------------------------#
+
+option.VHS_ENABLED=§dVHS Effect
+option.VHS_ENABLED.comment=Enables VHS-style distortions: tape wobble, horizontal noise, and color bleeding like old VHS tapes.
+value.VHS_ENABLED.0=Off
+value.VHS_ENABLED.1=On
+option.VHS_SHAKE=VHS Shake
+option.VHS_SHAKE.comment=Intensity of vertical tape shake/wobble.
+option.VHS_NOISE_INTENSITY=VHS Noise Intensity
+option.VHS_NOISE_INTENSITY.comment=Strength of horizontal line noise (VHS grain).
+option.VHS_OFFSET_INTENSITY=VHS Offset Intensity
+option.VHS_OFFSET_INTENSITY.comment=Strength of moving vertical bar distortions.
+option.VHS_COLOR_OFFSET_INTENSITY=VHS Color Offset Intensity
+option.VHS_COLOR_OFFSET_INTENSITY.comment=Strength of chromatic aberration (RGB channel shifts).
+option.VHS_NOISE_QUALITY=VHS Noise Quality
+option.VHS_NOISE_QUALITY.comment=Density of noise lines (higher = finer grain).
+option.VHS_STATIC_GLITCH_INTENSITY=Static Glitch Intensity
+option.VHS_STATIC_GLITCH_INTENSITY.comment=Intensity of static glitch noise overlaid on the image.
+option.VHS_PURPLE_STATIC_ENABLED=§dVHS Purple Static Background
+option.VHS_PURPLE_STATIC_ENABLED.comment=Enables a dark semi-violet background with subtle noise, typical of VHS aesthetics.
+value.VHS_PURPLE_STATIC_ENABLED.0=Off
+value.VHS_PURPLE_STATIC_ENABLED.1=On
+option.VHS_PURPLE_STATIC_INTENSITY=VHS Purple Static Intensity
+option.VHS_PURPLE_STATIC_INTENSITY.comment=Controls the intensity of the dark semi-violet background with noise.
+
+#--# Bodycam Miscellaneous Effects #-------------------------------------------#
+
+option.BODYCAMMISC_ENABLED=§bBodycam Miscellaneous Effects
+option.BODYCAMMISC_ENABLED.comment=Enables additional bodycam-style visual effects.
+value.BODYCAMMISC_ENABLED.0=Off
+value.BODYCAMMISC_ENABLED.1=On
+option.DYNAMIC_VIGNETTE=Dynamic Vignette
+option.DYNAMIC_VIGNETTE.comment=Enables dynamic vignette effect that adjusts based on scene.
+value.DYNAMIC_VIGNETTE.0=Off
+value.DYNAMIC_VIGNETTE.1=On
+option.DYNAMIC_VIGNETTE_STRENGTH=Dynamic Vignette Strength
+option.DYNAMIC_VIGNETTE_STRENGTH.comment=Strength of the dynamic vignette effect.
+option.CRT_CURVE=CRT Curve Strength
+option.CRT_CURVE.comment=Strength of CRT-style screen curvature effect.
+option.BLOOM_ENABLED=§eBloom
+option.BLOOM_ENABLED.comment=Enables bloom effect for glowing highlights.
+value.BLOOM_ENABLED.0=Off
+value.BLOOM_ENABLED.1=On
+option.BLOOM_STRENGTH=Bloom Strength
+option.BLOOM_STRENGTH.comment=Intensity of the bloom effect.
+option.DYNAMIC_NOISE=Dynamic Noise
+option.DYNAMIC_NOISE.comment=Enables dynamic noise effect that varies over time.
+value.DYNAMIC_NOISE.0=Off
+value.DYNAMIC_NOISE.1=On
+option.DYNAMIC_NOISE_STRENGTH=Dynamic Noise Strength
+option.DYNAMIC_NOISE_STRENGTH.comment=Strength of the dynamic noise effect.
+option.EDGE_DISTORTION_ENABLED=Edge Distortion
+option.EDGE_DISTORTION_ENABLED.comment=Enables edge distortion effect.
+value.EDGE_DISTORTION_ENABLED.0=Off
+value.EDGE_DISTORTION_ENABLED.1=On
+option.CUBIC_VIGNETTE_ENABLED=Cubic Vignette
+option.CUBIC_VIGNETTE_ENABLED.comment=Enables cubic vignette effect.
+value.CUBIC_VIGNETTE_ENABLED.0=Off
+value.CUBIC_VIGNETTE_ENABLED.1=On
+option.CUBIC_VIGNETTE_STRENGTH=Cubic Vignette Strength
+option.CUBIC_VIGNETTE_STRENGTH.comment=Strength of the cubic vignette effect.
+option.PS1_STYLE_ENABLED=PS1 Style
+option.PS1_STYLE_ENABLED.comment=Enables retro PS1-style visual effects.
+value.PS1_STYLE_ENABLED.0=Off
+value.PS1_STYLE_ENABLED.1=On
+option.PS1_STYLE_INTENSITY=PS1 Style Intensity
+option.PS1_STYLE_INTENSITY.comment=Intensity of the retro PS1-style effect.
+option.VHS_CHROMATIC_ABERRATION=VHS Chromatic Aberration
+option.VHS_CHROMATIC_ABERRATION.comment=Chromatic aberration effect for Bodycam and VHS.
+
+#--# End Portal Colors #-------------------------------------------------------#
+
+option.END_PORTAL_COLOR_0_R=End Portal Color 0 Red 
+option.END_PORTAL_COLOR_0_R.comment=Red component for End Portal layer 0 
+option.END_PORTAL_COLOR_0_G=End Portal Color 0 Green 
+option.END_PORTAL_COLOR_0_G.comment=Green component for End Portal layer 0 
+option.END_PORTAL_COLOR_0_B=End Portal Color 0 Blue 
+option.END_PORTAL_COLOR_0_B.comment=Blue component for End Portal layer 0 
+option.END_PORTAL_COLOR_1_R=End Portal Color 1 Red 
+option.END_PORTAL_COLOR_1_R.comment=Red component for End Portal layer 1 
+option.END_PORTAL_COLOR_1_G=End Portal Color 1 Green 
+option.END_PORTAL_COLOR_1_G.comment=Green component for End Portal layer 1 
+option.END_PORTAL_COLOR_1_B=End Portal Color 1 Blue 
+option.END_PORTAL_COLOR_1_B.comment=Blue component for End Portal layer 1 
+option.END_PORTAL_COLOR_2_R=End Portal Color 2 Red 
+option.END_PORTAL_COLOR_2_R.comment=Red component for End Portal layer 2 
+option.END_PORTAL_COLOR_2_G=End Portal Color 2 Green 
+option.END_PORTAL_COLOR_2_G.comment=Green component for End Portal layer 2 
+option.END_PORTAL_COLOR_2_B=End Portal Color 2 Blue 
+option.END_PORTAL_COLOR_2_B.comment=Blue component for End Portal layer 2 
+option.END_PORTAL_COLOR_3_R=End Portal Color 3 Red 
+option.END_PORTAL_COLOR_3_R.comment=Red component for End Portal layer 3 
+option.END_PORTAL_COLOR_3_G=End Portal Color 3 Green 
+option.END_PORTAL_COLOR_3_G.comment=Green component for End Portal layer 3 
+option.END_PORTAL_COLOR_3_B=End Portal Color 3 Blue 
+option.END_PORTAL_COLOR_3_B.comment=Blue component for End Portal layer 3 
+option.END_PORTAL_COLOR_4_R=End Portal Color 4 Red 
+option.END_PORTAL_COLOR_4_R.comment=Red component for End Portal layer 4 
+option.END_PORTAL_COLOR_4_G=End Portal Color 4 Green 
+option.END_PORTAL_COLOR_4_G.comment=Green component for End Portal layer 4 
+option.END_PORTAL_COLOR_4_B=End Portal Color 4 Blue 
+option.END_PORTAL_COLOR_4_B.comment=Blue component for End Portal layer 4 
+option.END_PORTAL_COLOR_5_R=End Portal Color 5 Red 
+option.END_PORTAL_COLOR_5_R.comment=Red component for End Portal layer 5 
+option.END_PORTAL_COLOR_5_G=End Portal Color 5 Green 
+option.END_PORTAL_COLOR_5_G.comment=Green component for End Portal layer 5 
+option.END_PORTAL_COLOR_5_B=End Portal Color 5 Blue 
+option.END_PORTAL_COLOR_5_B.comment=Blue component for End Portal layer 5 
+option.END_PORTAL_COLOR_6_R=End Portal Color 6 Red 
+option.END_PORTAL_COLOR_6_R.comment=Red component for End Portal layer 6 
+option.END_PORTAL_COLOR_6_G=End Portal Color 6 Green 
+option.END_PORTAL_COLOR_6_G.comment=Green component for End Portal layer 6 
+option.END_PORTAL_COLOR_6_B=End Portal Color 6 Blue 
+option.END_PORTAL_COLOR_6_B.comment=Blue component for End Portal layer 6 
+option.END_PORTAL_COLOR_7_R=End Portal Color 7 Red 
+option.END_PORTAL_COLOR_7_R.comment=Red component for End Portal layer 7 
+option.END_PORTAL_COLOR_7_G=End Portal Color 7 Green 
+option.END_PORTAL_COLOR_7_G.comment=Green component for End Portal layer 7 
+option.END_PORTAL_COLOR_7_B=End Portal Color 7 Blue 
+option.END_PORTAL_COLOR_7_B.comment=Blue component for End Portal layer 7 
+option.END_PORTAL_COLOR_8_R=End Portal Color 8 Red 
+option.END_PORTAL_COLOR_8_R.comment=Red component for End Portal layer 8 
+option.END_PORTAL_COLOR_8_G=End Portal Color 8 Green 
+option.END_PORTAL_COLOR_8_G.comment=Green component for End Portal layer 8 
+option.END_PORTAL_COLOR_8_B=End Portal Color 8 Blue 
+option.END_PORTAL_COLOR_8_B.comment=Blue component for End Portal layer 8 
+option.END_PORTAL_COLOR_9_R=End Portal Color 9 Red 
+option.END_PORTAL_COLOR_9_R.comment=Red component for End Portal layer 9 
+option.END_PORTAL_COLOR_9_G=End Portal Color 9 Green 
+option.END_PORTAL_COLOR_9_G.comment=Green component for End Portal layer 9 
+option.END_PORTAL_COLOR_9_B=End Portal Color 9 Blue 
+option.END_PORTAL_COLOR_9_B.comment=Blue component for End Portal layer 9 
+option.END_PORTAL_COLOR_10_R=End Portal Color 10 Red 
+option.END_PORTAL_COLOR_10_R.comment=Red component for End Portal layer 10 
+option.END_PORTAL_COLOR_10_G=End Portal Color 10 Green 
+option.END_PORTAL_COLOR_10_G.comment=Green component for End Portal layer 10 
+option.END_PORTAL_COLOR_10_B=End Portal Color 10 Blue 
+option.END_PORTAL_COLOR_10_B.comment=Blue component for End Portal layer 10 
+option.END_PORTAL_COLOR_11_R=End Portal Color 11 Red 
+option.END_PORTAL_COLOR_11_R.comment=Red component for End Portal layer 11 
+option.END_PORTAL_COLOR_11_G=End Portal Color 11 Green 
+option.END_PORTAL_COLOR_11_G.comment=Green component for End Portal layer 11 
+option.END_PORTAL_COLOR_11_B=End Portal Color 11 Blue 
+option.END_PORTAL_COLOR_11_B.comment=Blue component for End Portal layer 11 
+option.END_PORTAL_COLOR_12_R=End Portal Color 12 Red 
+option.END_PORTAL_COLOR_12_R.comment=Red component for End Portal layer 12 
+option.END_PORTAL_COLOR_12_G=End Portal Color 12 Green 
+option.END_PORTAL_COLOR_12_G.comment=Green component for End Portal layer 12 
+option.END_PORTAL_COLOR_12_B=End Portal Color 12 Blue 
+option.END_PORTAL_COLOR_12_B.comment=Blue component for End Portal layer 12 
+option.END_PORTAL_COLOR_13_R=End Portal Color 13 Red 
+option.END_PORTAL_COLOR_13_R.comment=Red component for End Portal layer 13 
+option.END_PORTAL_COLOR_13_G=End Portal Color 13 Green 
+option.END_PORTAL_COLOR_13_G.comment=Green component for End Portal layer 13 
+option.END_PORTAL_COLOR_13_B=End Portal Color 13 Blue 
+option.END_PORTAL_COLOR_13_B.comment=Blue component for End Portal layer 13 
+option.END_PORTAL_COLOR_14_R=End Portal Color 14 Red 
+option.END_PORTAL_COLOR_14_R.comment=Red component for End Portal layer 14 
+option.END_PORTAL_COLOR_14_G=End Portal Color 14 Green 
+option.END_PORTAL_COLOR_14_G.comment=Green component for End Portal layer 14 
+option.END_PORTAL_COLOR_14_B=End Portal Color 14 Blue 
+option.END_PORTAL_COLOR_14_B.comment=Blue component for End Portal layer 14 
+option.END_PORTAL_COLOR_15_R=End Portal Color 15 Red 
+option.END_PORTAL_COLOR_15_R.comment=Red component for End Portal layer 15 
+option.END_PORTAL_COLOR_15_G=End Portal Color 15 Green 
+option.END_PORTAL_COLOR_15_G.comment=Green component for End Portal layer 15 
+option.END_PORTAL_COLOR_15_B=End Portal Color 15 Blue 
+option.END_PORTAL_COLOR_15_B.comment=Blue component for End Portal layer 15 
+
+#--# Color and Tonemapping #---------------------------------------------------#
+
+option.CAS_ENABLED=§bFidelityFX CAS
+option.CAS_ENABLED.comment=AMD FidelityFX Contrast-Adaptive Sharpening. Sharpens the final image.
+option.CAS_STRENGTH=CAS Strength
+option.TONEMAP=§a§lT§f§lonemap
+value.TONEMAP.AgX_Minimal=AgX Minimal
+value.TONEMAP.AgX_Full=AgX Full
+
+option.COLOR_GRADING=§a§lC§f§lolor-§f§lGrading
+option.COLOR_GRADING.comment=§bFront of the following adjustable options. Adjusts the color palette of the final image.
+option.BRIGHTNESS=§a§lB§f§lrightness
+option.CONTRAST=§a§lC§f§lontrast
+option.GAMMA=§a§lG§famma
+option.SATURATION=§a§lS§f§laturation
+option.WHITE_BALANCE=§a§lW§f§lhite §f§lBalance
+suffix.WHITE_BALANCE=K
+
+#--# Debug #-------------------------------------------------------------------#
+
+value.DEBUG_NORMAL.0=Off
+value.DEBUG_NORMAL.1=View Normal
+value.DEBUG_NORMAL.2=World Normal
+option.LIGHT_OVERLAY=Show Light Level Overlay
+option.LIGHT_OVERLAY.0=Off
+option.LIGHT_OVERLAY.1=On
+option.CHUNK_OVERLAY=Show Chunk Grid
+option.CHUNK_OVERLAY.0=Off
+option.CHUNK_OVERLAY.1=On
+
+
+
