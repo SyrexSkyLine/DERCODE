@@ -2,20 +2,17 @@ out vec3 blurColor;
 
 /* DRAWBUFFERS:2 */
 
-uniform sampler2D colortex2; // Текстура с вектором скорости
-uniform sampler2D colortex5; // Текстура с цветом
+uniform sampler2D colortex2;
+uniform sampler2D colortex5;
 
 uniform vec2 screenSize;
 uniform vec2 screenPixelSize;
+uniform vec3 cameraSpeed;  // Добавлен для расчёта скорости камеры
 
 #include "/lib/Head/Common.inc"
 
-//----// SETTINGS //-----------------------------------------------------------------------------//
-
-#define MOTION_BLUR_SAMPLES 8 // Количество выборок для размытия [4 8 12 16]
-#define MOTION_BLUR_STRENGTH 2.0 // Сила размытия [0.5 1.0 1.5 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
-#define NOISE_SCALE 0.5 // Влияние шума на выборку [0.2 0.5 0.8 1.0]
-
+// ===== ELYTRA MOTION BLUR НАСТРОЙКИ =====
+// Включи один из стилей: 0=радиал (всегда), 1=по скорости (только >30 бл/сек), 2=комбо (всегда)
 //----// FUNCTIONS //-----------------------------------------------------------------------------//
 
 float InterleavedGradientNoise(in vec2 coord) {
@@ -23,59 +20,51 @@ float InterleavedGradientNoise(in vec2 coord) {
 }
 
 vec3 MotionBlur() {
-    ivec2 texel = ivec2(gl_FragCoord.xy);
-    vec2 screenCoord = gl_FragCoord.xy * screenPixelSize;
+	ivec2 texel = ivec2(gl_FragCoord.xy);
+	vec2 screenCoord = gl_FragCoord.xy * screenPixelSize;
 
-    // Получаем вектор скорости из colortex2
-    vec2 velocity = texelFetch(colortex2, texel, 0).xy;
+	vec2 velocity = texelFetch(colortex2, texel, 0).xy;
 
-    //Я ЕБАЛ НАХУЙ КОДИТЬ НА ГЛСЛ возвращаем исходный цвет
-    if (length(velocity) < 1e-7) {
-        return texelFetch(colortex5, texel, 0).rgb;
-    }
+	if (length(velocity) < 1e-7) return texelFetch(colortex5, texel, 0).rgb;
 
-    // Нормализуем и масштабируем скорость
-    float velocityLength = length(velocity);
-    velocity = clamp(velocity * 0.1, -0.28, 0.28); // Ограничиваем для стабильности
-    float rSteps = 1.0 / float(MOTION_BLUR_SAMPLES);
-    velocity *= MOTION_BLUR_STRENGTH * rSteps / (1.0 + velocityLength);
+    // ===== МЕХАНИКА СКОРОСТИ КАМЕРЫ (ТОЛЬКО ДЛЯ СТИЛЯ 1) =====
+    float horizSpeed = length(cameraSpeed.xz);
+    float vertSpeed = abs(cameraSpeed.y);
+    float totalSpeed = max(horizSpeed, vertSpeed * 0.7);  // Учёт падения
+    float speedFactor = smoothstep(30.0, 120.0, totalSpeed);  // 0 при <30, 1 при 120+
 
-    // Инициализируем шум для рандомизации
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-    vec2 sampleCoord = screenCoord - velocity * (float(MOTION_BLUR_SAMPLES) * 0.5);
+    #if ELYTRA_BLUR_STYLE == 1
+        // Полное выключение при низкой скорости
+        if (speedFactor < 0.01) {
+            return texelFetch(colortex5, texel, 0).rgb;
+        }
+    #endif
 
-    vec3 blurColor = vec3(0.0);
-    float totalWeight = 0.0;
+	const float rSteps = rcp(float(MOTION_BLUR_SAMPLES));
+	velocity *= MOTION_BLUR_STRENGTH * rSteps / (1.0 + length(velocity));
 
+    // ===== МОДУЛЯЦИЯ СИЛЫ ДЛЯ СТИЛЯ 1 =====
+    #if ELYTRA_BLUR_STYLE == 1
+        velocity *= speedFactor * 1.8;  // Шлейф растёт с ускорением (подкрути 1.8)
+    #endif
 
+	float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
+    vec2 sampleCoord = screenCoord + velocity * dither;
+	sampleCoord -= velocity * MOTION_BLUR_SAMPLES * 0.5;
 
-    // Сэмплируем с учетом шума ТАК А НАХУЙ ТІ КОМЕНТІ ОСТАВЛЯЕШ? 
-    for (uint i = 0u; i < MOTION_BLUR_SAMPLES; ++i) {
-        // Добавляем шум к позиции выборки
-        float noise = InterleavedGradientNoise(gl_FragCoord.xy + float(i) * 123.456);
-        vec2 offset = velocity * (float(i) + noise * NOISE_SCALE - 0.5);
-        vec2 samplePos = screenCoord + offset;
+	vec3 blurColor = vec3(0.0);
 
-        // Ограничиваем координаты выборки
-        samplePos = clamp(samplePos * screenSize, vec2(2.0), screenSize - 2.0);
+	for (uint i = 0u; i < MOTION_BLUR_SAMPLES; ++i, sampleCoord += velocity) {
+        blurColor += texelFetch(colortex5, ivec2(clamp(sampleCoord * screenSize, vec2(2.0), screenSize - 2.0)), 0).rgb;
+	}
 
-        // Добавляем цвет с весом, зависящим от шума (для мягкости)
-        float weight = 1.0 - abs(noise - 0.5) * 0.5; // Вес выборки
-        blurColor += texelFetch(colortex5, ivec2(samplePos), 0).rgb * weight;
-        totalWeight += weight;
-    }
-
-    // Нормализуем результат
-    return clamp16F(blurColor / totalWeight);
+	return clamp16F(blurColor * rSteps);
 }
 
 //----// MAIN //----------------------------------------------------------------------------------//
-
 void main() {
-    #ifdef MOTION_BLUR
-        blurColor = MotionBlur();
-    #else
-        blurColor = texelFetch(colortex5, ivec2(gl_FragCoord.xy), 0).rgb;
-    #endif
+	#ifdef MOTION_BLUR
+	#endif
+	blurColor = MotionBlur();
 }

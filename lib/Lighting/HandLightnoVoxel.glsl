@@ -4,6 +4,15 @@
 #ifndef HANDLIGHT_NO_VOXEL_GLSL
 #define HANDLIGHT_NO_VOXEL_GLSL
 
+// Dynamic light settings (can be overridden in shaders.properties)
+#ifndef HELD_LIGHT_COLOR_ENABLED
+    #define HELD_LIGHT_COLOR_ENABLED 1  // [0 1] Enable colored dynamic lighting
+#endif
+
+#ifndef DYNAMIC_LIGHT_COLOR_INTENSITY
+    #define DYNAMIC_LIGHT_COLOR_INTENSITY 0.8  // [0.0 0.3 0.5 0.8 1.0] Color tint intensity
+#endif
+
 // LUM/SAT settings for each light category
 #define TORCH_LUM 0.65
 #define TORCH_SAT 0.85
@@ -179,6 +188,11 @@ void getHandLightColor(inout vec3 lightingColor, int heldItem) {
 
 // Screen-space fade between hands with smooth blending
 void changeLightingColorByHand(inout vec3 lightingColor) {
+    #if HELD_LIGHT_COLOR_ENABLED == 0
+        lightingColor = vec3(1.0);
+        return;
+    #endif
+    
     vec3 leftLightingColor = vec3(0.0);
     vec3 rightLightingColor = vec3(0.0);
     
@@ -229,6 +243,22 @@ vec2 adjustLightmapWithDynamicLight(vec2 lmcoord, float dist, int heldLight, int
     float newBlockLight = max(lmcoord.x, dynLight);
     
     return vec2(newBlockLight, lmcoord.y);
+}
+
+// Apply dynamic light color tint to surface
+vec3 applyDynamicLightColor(vec3 albedo, float originalBlockLight, float currentBlockLight, vec3 lightColor) {
+    #if HELD_LIGHT_COLOR_ENABLED == 0
+        return albedo;
+    #endif
+    
+    // Calculate how much dynamic light was added
+    float dynamicLightAmount = max(0.0, currentBlockLight - originalBlockLight);
+    
+    if (dynamicLightAmount < 0.01) return albedo;
+    
+    // Apply color tint based on dynamic light amount
+    float tintStrength = dynamicLightAmount * DYNAMIC_LIGHT_COLOR_INTENSITY;
+    return albedo * mix(vec3(1.0), lightColor, tintStrength);
 }
 
 #endif //HANDLIGHT_NO_VOXEL_GLSL

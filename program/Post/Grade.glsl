@@ -1,6 +1,21 @@
-
 #include "/lib/Head/Common.inc"
 #include "/lib/Head/Uniforms.inc"
+
+#if DIRT_STYLE > 0
+    #if DIRT_STYLE == 1
+        uniform sampler2D colortex8;  // astralex
+        #define DIRTY_LENS_SAMPLER colortex8
+    #elif DIRT_STYLE == 2
+        uniform sampler2D colortex10; // bodycam
+        #define DIRTY_LENS_SAMPLER colortex10
+    #elif DIRT_STYLE == 3
+        uniform sampler2D colortex11; // big
+        #define DIRTY_LENS_SAMPLER colortex11
+    #elif DIRT_STYLE == 4
+        uniform sampler2D colortex12; // blink
+        #define DIRTY_LENS_SAMPLER colortex12
+    #endif
+#endif
 
 //--// Internal Settings //---------------------------------------------------//
 
@@ -21,15 +36,12 @@
 	const bool  colortex5Clear				= false;
 	const bool 	colortex7Clear				= true;
 
-
 	const float shadowIntervalSize 			= 2.0;
 	const float ambientOcclusionLevel 		= 0.05f;
-	const float	sunPathRotation				= -35.0; // [-90.0 -89.0 -88.0 -87.0 -86.0 -85.0 -84.0 -83.0 -82.0 -81.0 -80.0 -79.0 -78.0 -77.0 -76.0 -75.0 -74.0 -73.0 -72.0 -71.0 -70.0 -69.0 -68.0 -67.0 -66.0 -65.0 -64.0 -63.0 -62.0 -61.0 -60.0 -59.0 -58.0 -57.0 -56.0 -55.0 -54.0 -53.0 -52.0 -51.0 -50.0 -49.0 -48.0 -47.0 -46.0 -45.0 -44.0 -43.0 -42.0 -41.0 -40.0 -39.0 -38.0 -37.0 -36.0 -35.0 -34.0 -33.0 -32.0 -31.0 -30.0 -29.0 -28.0 -27.0 -26.0 -25.0 -24.0 -23.0 -22.0 -21.0 -20.0 -19.0 -18.0 -17.0 -16.0 -15.0 -14.0 -13.0 -12.0 -11.0 -10.0 -9.0 -8.0 -7.0 -6.0 -5.0 -4.0 -3.0 -2.0 -1.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0 65.0 66.0 67.0 68.0 69.0 70.0 71.0 72.0 73.0 74.0 75.0 76.0 77.0 78.0 79.0 80.0 81.0 82.0 83.0 84.0 85.0 86.0 87.0 88.0 89.0 90.0]
+	const float	sunPathRotation				= -35.0;
 	const float eyeBrightnessHalflife 		= 10.0;
-
 	const float wetnessHalflife				= 180.0;
 	const float drynessHalflife				= 60.0;
-
 	const bool 	shadowHardwareFiltering1 	= true;
 */
 
@@ -47,31 +59,35 @@
 	#undef PURKINJE_SHIFT
 #endif
 
-#define TONEMAP AcademyCustom // [AcademyCustom AcademyFit AgX_Minimal AgX_Full]
+#define TONEMAP AcademyFit // [AcademyCustom AcademyFit AgX_Minimal AgX_Full]
 
 //#define CINEMATIC_EFFECT
 
 //#define COLOR_GRADING
 #define BRIGHTNESS 		1.0  // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define GAMMA 			1.0  // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
-#define CONTRAST		1.0  // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
+#define CONTRAST		0.8  // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define SATURATION 		1.0  // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define WHITE_BALANCE	6500 // [2500 3000 3500 4000 4100 4200 4300 4400 4500 4600 4700 4800 4900 5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000 10100 10200 10300 10400 10500 10600 10700 10800 10900 11000 11100 11200 11300 11400 11500 11600 11700 11800 11900 12000]
 
 //#define VIGNETTE_ENABLED
 #define VIGNETTE_STRENGTH 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0 3.5 4.0 5.0]
 
+// ==== НАСТРОЙКИ ДОПОЛНИТЕЛЬНОГО МЯГКОГО БЛУМА (SEUS PTGI STYLE) ====
+//#define SOFT_BLOOM_ENABLED
+
+
+
+
 //#define DEBUG_COUNTER
 
 //----------------------------------------------------------------------------//
-
 
 out vec3 sceneColor;
 
 /* DRAWBUFFERS:3 */
 
 in vec2 screenCoord;
-//flat in float exposure;
 
 //----// FUNCTIONS //-----------------------------------------------------------------------------//
 
@@ -93,6 +109,52 @@ vec3 DualBlurUpSample(in sampler2D tex, in int lod) {
 
     return textureBicubic(tex, coord).rgb;
 }
+
+#ifdef SOFT_BLOOM_ENABLED
+vec3 CalculateSoftBloom(in sampler2D tex, in int baseLod) {
+	vec3 softBloom = vec3(0.0);
+	float totalWeight = 0.0;
+	
+	// SEUS PTGI стиль: используем большой радиус и плавное затухание
+	// Берём несколько LOD уровней с экспоненциальным весом
+	
+	#if SOFT_BLOOM_QUALITY >= 1
+		float weight1 = 1.0;
+		softBloom += DualBlurUpSample(tex, baseLod + 1) * weight1;
+		totalWeight += weight1;
+	#endif
+	
+	#if SOFT_BLOOM_QUALITY >= 2
+		float weight2 = 1.2;
+		softBloom += DualBlurUpSample(tex, baseLod + 2) * weight2;
+		totalWeight += weight2;
+	#endif
+	
+	#if SOFT_BLOOM_QUALITY >= 3
+		float weight3 = 1.5;
+		softBloom += DualBlurUpSample(tex, baseLod + 3) * weight3;
+		totalWeight += weight3;
+	#endif
+	
+	#if SOFT_BLOOM_QUALITY >= 4
+		float weight4 = 1.8;
+		softBloom += DualBlurUpSample(tex, baseLod + 4) * weight4;
+		totalWeight += weight4;
+	#endif
+	
+	#if SOFT_BLOOM_QUALITY >= 5
+		float weight5 = 2.0;
+		softBloom += DualBlurUpSample(tex, baseLod + 5) * weight5;
+		totalWeight += weight5;
+	#endif
+	
+	// Нормализация с учётом радиуса
+	softBloom /= totalWeight;
+	
+	// Применяем силу блума и радиус
+	return softBloom * SOFT_BLOOM_AMOUNT * (SOFT_BLOOM_RADIUS * 0.5);
+}
+#endif
 
 void CalculateBloomFog(inout vec3 color, in ivec2 texel) {
 	vec3 sampleTile = vec3(0.0);
@@ -130,6 +192,38 @@ void CalculateBloomFog(inout vec3 color, in ivec2 texel) {
 	bloomData *= 0.23118661;
 	fogBloom *= 0.03108305;
 
+	// ==== ДОПОЛНИТЕЛЬНЫЙ МЯГКИЙ БЛУМ (SEUS PTGI STYLE) ====
+	#ifdef SOFT_BLOOM_ENABLED
+		vec3 softBloom = CalculateSoftBloom(colortex4, 2);
+		
+		// Смешиваем мягкий блум с основным более агрессивно
+		bloomData = mix(bloomData, softBloom, 0.7);
+		
+		// Добавляем дополнительный слой для свечения
+		bloomData += softBloom * 0.3;
+	#endif
+
+	// ==== DIRTY LENS (ПРИМЕНЯЕМ ПОСЛЕ СМЕШИВАНИЯ) ====
+#if DIRT_STYLE > 0
+    float newAspectRatio = 1.777777777777778 / aspectRatio;
+    vec2 scale = vec2(max(newAspectRatio, 1.0), max(1.0 / newAspectRatio, 1.0));
+    vec2 dirtCoord = (screenCoord - 0.5) / scale + 0.5;
+
+    float dirt = texture2D(DIRTY_LENS_SAMPLER, dirtCoord).r;
+
+    float brightness = length(bloomData / (1.0 + bloomData));
+    dirt *= brightness * DIRTY_LENS_STRENGTH;
+
+    // Усиление bloom через грязь
+    #ifdef DIRTY_LENS_BLOOM_BOOST
+        bloomData *= (dirt * DIRTY_LENS_BLOOM_STRENGTH + 1.0);
+        fogBloom  *= (dirt * (DIRTY_LENS_BLOOM_STRENGTH * 0.5) + 1.0);
+    #else
+        bloomData *= (dirt * 16.0 + 1.0);
+        fogBloom  *= (dirt * 8.0 + 1.0);
+    #endif
+#endif
+
 	fogBloom += bloomData;
 
 	#ifdef BLOOMY_FOG
@@ -143,6 +237,7 @@ void CalculateBloomFog(inout vec3 color, in ivec2 texel) {
 	bloomAmount /= fma(max(exposure, 1.0), 0.7, 0.3);
 
 	color += bloomData * bloomAmount;
+	
 	#if !defined IS_NETHER
 		if (isEyeInWater == 0 && wetness > 1e-2) {
 			float rain = texelFetch(colortex0, texel, 0).b * 0.35;
@@ -197,7 +292,6 @@ const mat3 xyzToRgb = mat3(
 		return (bradfordConeResponse * vonKries) * inverse(bradfordConeResponse);
 	}
 
-
 	mat3 WhiteBalanceMatrix() {
 		vec3 srcXyz = Blackbody(float(WHITE_BALANCE)) * rgbToXyz;
 		vec3 dstXyz = Blackbody(6500.0) 			  * rgbToXyz;
@@ -238,9 +332,6 @@ void main() {
 
 	color *= texelFetch(colortex5, ivec2(0), 0).a; // Exposure
 
-	//color *= pow(vec3(1.0, 1.07, 1.25), vec3(1.1));
-	// color *= vec3(1.0, 1.07, 1.25);
-
 	#ifdef VIGNETTE_ENABLED
 		color *= expf(-2.0 * dotSelf(screenCoord - 0.5) * VIGNETTE_STRENGTH);
 	#endif
@@ -253,7 +344,6 @@ void main() {
 
 	#ifdef DEBUG_COUNTER
 		const float scale = 5.0, size = 1.0 / scale;
-
 		vec2 tCoord = gl_FragCoord.xy * size;
 
 		if (clamp(tCoord, vec2(0.0, 25.0), vec2(40.0, 50.0)) == tCoord) {

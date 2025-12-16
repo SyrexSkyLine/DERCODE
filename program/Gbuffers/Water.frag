@@ -1,4 +1,3 @@
-
 layout(location = 0) out vec3 colortex7Out;
 layout(location = 1) out vec4 reflectionData;
 layout(location = 2) out vec4 colortex3Out;
@@ -191,70 +190,108 @@ vec4 CalculateSpecularReflections(in vec3 normal, in float skylight, in vec3 vie
 }
 
 void main() {
-	vec4 albedo = texture(tex, texcoord) * tint;
+    // 1. ТВОЙ ОРИГИНАЛЬНЫЙ albedo (texture sampling)
+    vec4 albedo = texture(tex, texcoord) * tint;
 
-    //mat3 tbnMatrix = manualTBN(viewPos.xyz, texcoord);
+    // 2. НОРМАЛИ ВОДЫ (твой оригинальный код — НЕ МЕНЯЕМ)
+    vec3 normalData;
+    #ifdef PHYSICS_OCEAN
+        if (materialIDs == 17u) {
+            WavePixelData wave = physics_wavePixel(physics_localPosition.xz, physics_localWaviness, physics_iterationsNormal, physics_gameTime);
+            normalData = mat3(gbufferModelView) * wave.normal;
+            normalData = isEyeInWater == 1 ? -normalData : normalData;
+        } else {
+            #ifdef MC_NORMAL_MAP
+                normalData = texture(normals, texcoord).rgb;
+                DecodeNormalTex(normalData);
+            #else
+                normalData = vec3(0.0, 0.0, 1.0);
+            #endif
 
-	vec3 normalData;
-	#ifdef PHYSICS_OCEAN
-		if (materialIDs == 17u) {
-				WavePixelData wave = physics_wavePixel(physics_localPosition.xz, physics_localWaviness, physics_iterationsNormal, physics_gameTime);
-				normalData = mat3(gbufferModelView) * wave.normal;
-				normalData = isEyeInWater == 1 ? -normalData : normalData;
-		} else {
-			#ifdef MC_NORMAL_MAP
-				normalData = texture(normals, texcoord).rgb;
-				DecodeNormalTex(normalData);
-			#else
-				normalData = vec3(0.0, 0.0, 1.0);
-			#endif
+            #if defined IS_OVERWORLD
+                #ifdef RAIN_SPLASH_EFFECT
+                    if (wetnessCustom > 1e-2) {
+                        vec2 rainNormal = GetRainNormal(wetnessCustom, minecraftPos);
+                        normalData.xy += rainNormal * wetnessCustom * saturate(lightmap.y * 10.0 - 9.0);
+                    }
+                #endif
+            #endif
 
-			#if defined IS_OVERWORLD
-				#ifdef RAIN_SPLASH_EFFECT
-					if (wetnessCustom > 1e-2) {
-						vec2 rainNormal = GetRainNormal(wetnessCustom, minecraftPos);
-						normalData.xy += rainNormal * wetnessCustom * saturate(lightmap.y * 10.0 - 9.0);
-					}
-				#endif
-			#endif
+            normalData = normalize(tbnMatrix * normalData);
+        }
+    #else
+        if (materialIDs == 17u) {
+            #ifdef WATER_PARALLAX
+                vec2 position = GetWaterParallaxCoord(minecraftPos, normalize(viewPos.xyz * tbnMatrix));
+                normalData = GetWavesNormal(position);
+            #else
+                normalData = GetWavesNormal(minecraftPos.xz - minecraftPos.y);
+            #endif
+        } else {
+            #ifdef MC_NORMAL_MAP
+                normalData = texture(normals, texcoord).rgb;
+                DecodeNormalTex(normalData);
+            #else
+                normalData = vec3(0.0, 0.0, 1.0);
+            #endif
+        }
 
-			normalData = normalize(tbnMatrix * normalData);
-		}
-	#else
-		if (materialIDs == 17u) {
-			#ifdef WATER_PARALLAX
-				vec2 position = GetWaterParallaxCoord(minecraftPos, normalize(viewPos.xyz * tbnMatrix));
-				normalData = GetWavesNormal(position);
-			#else
-				normalData = GetWavesNormal(minecraftPos.xz - minecraftPos.y);
-			#endif
-		} else {
-			#ifdef MC_NORMAL_MAP
-				normalData = texture(normals, texcoord).rgb;
-				DecodeNormalTex(normalData);
-			#else
-				normalData = vec3(0.0, 0.0, 1.0);
-			#endif
-		}
+        #if defined IS_OVERWORLD
+            #ifdef RAIN_SPLASH_EFFECT
+                if (wetnessCustom > 1e-2) {
+                    vec2 rainNormal = GetRainNormal(minecraftPos);
+                    normalData.xy += rainNormal * wetnessCustom * saturate(lightmap.y * 10.0 - 9.0);
+                }
+            #endif
+        #endif
 
-		#if defined IS_OVERWORLD
-			#ifdef RAIN_SPLASH_EFFECT
-				if (wetnessCustom > 1e-2) {
-					vec2 rainNormal = GetRainNormal(minecraftPos);
-					normalData.xy += rainNormal * wetnessCustom * saturate(lightmap.y * 10.0 - 9.0);
-				}
-			#endif
-		#endif
+        normalData = normalize(tbnMatrix * normalData);
+    #endif
 
-		normalData = normalize(tbnMatrix * normalData);
-	#endif
+    // 3. ⭐ ЗДЕСЬ МОГУТ БЫТЬ Water Dispersion/Refraction (они работают на normalData/albedo)
+    // ... твои функции WaterFog(), WaterRefraction() и т.д. (если есть) ...
+    
+    // 4. ⭐ ХРОМАТИЧЕСКАЯ АБЕРРАЦИЯ — ПОСЛЕ ВСЕХ ЭФФЕКТОВ ВОДЫ! ⭐
+    #if WATER_CHROMATIC_ABERRATION == 1
+    if (materialIDs == 17u) {
+        vec3 normalForCA = normalData;  // Используем уже готовую нормаль (после rain/dispersion)
+        
+        vec3 viewDir = normalize(viewPos.xyz);
+        float NdotV = abs(dot(normalForCA, -viewDir));
 
-	colortex7Out.xy = lightmap + (bayer4(gl_FragCoord.xy) - 0.5) * rcp(255.0);
-	colortex7Out.z = float(materialIDs + 0.1) * rcp(255.0);
+        // pow2 заменено на x*x
+        float angleFactor = 1.0 - NdotV;
+        angleFactor = angleFactor * angleFactor;
+        angleFactor = angleFactor * angleFactor * 0.018;
 
-	colortex3Out.xy = EncodeNormal(normalData);
-	colortex3Out.z = PackUnorm2x8(albedo.rg);
-	colortex3Out.w = PackUnorm2x8(albedo.ba);
+        float waveSteepness = length(fwidth(normalForCA.xz));
+        float aberrationStrength = angleFactor + waveSteepness * 0.012;
+        aberrationStrength *= WATER_CA_STRENGTH;
+        aberrationStrength = min(aberrationStrength, 0.035);
 
-	reflectionData = CalculateSpecularReflections(normalData, cube(lightmap.g), viewPos.xyz);
+        vec2 uvOffset = normalForCA.xy * aberrationStrength;
+        uvOffset.x *= viewWidth / viewHeight;  // Aspect ratio
+
+        // Bliss Unstable коэффициенты
+        vec2 offsetR = uvOffset * 1.12;
+        vec2 offsetG = uvOffset * 0.98;
+        vec2 offsetB = uvOffset * 0.82;
+
+        // Применяем к albedo ПОСЛЕ всех эффектов
+        albedo.r = texture(tex, texcoord + offsetR).r * tint.r;
+        albedo.g = texture(tex, texcoord + offsetG).g * tint.g;
+        albedo.b = texture(tex, texcoord + offsetB).b * tint.b;
+        albedo.a = texture(tex, texcoord).a * tint.a;
+    }
+    #endif
+
+    // 5. ФИНАЛЬНЫЙ ВЫВОД (твой оригинальный — НЕ МЕНЯЕМ)
+    colortex7Out.xy = lightmap + (bayer4(gl_FragCoord.xy) - 0.5) * rcp(255.0);
+    colortex7Out.z = float(materialIDs + 0.1) * rcp(255.0);
+
+    colortex3Out.xy = EncodeNormal(normalData);
+    colortex3Out.z = PackUnorm2x8(albedo.rg);
+    colortex3Out.w = PackUnorm2x8(albedo.ba);
+
+    reflectionData = CalculateSpecularReflections(normalData, cube(lightmap.g), viewPos.xyz);
 }

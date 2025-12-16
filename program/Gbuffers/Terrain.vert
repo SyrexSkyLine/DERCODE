@@ -1,4 +1,3 @@
-
 uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
@@ -6,6 +5,12 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
 uniform float wetnessCustom;
+
+// Dynamic light uniforms
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
 
 uniform vec2 taaOffset;
 
@@ -23,12 +28,16 @@ out vec3 minecraftPos;
 out vec3 viewPos;
 
 flat out mat3 tbnMatrix;
-
 flat out uint materialIDs;
 
 out vec2 lightmap;
+out vec2 originalLightmap; // Store original lightmap for color calculation
+out float vertexDistance;  // Distance for dynamic light calculation
+flat out int itemId1;      // Pass item IDs to fragment shader
+flat out int itemId2;
 
 #include "/lib/Head/Common.inc"
+#include "/lib/Lighting/HandLightnoVoxel.glsl"
 
 #if defined PARALLAX || ANISOTROPIC_FILTER > 0
 	out vec2 tileCoord;
@@ -43,7 +52,8 @@ void main() {
 	tint = gl_Color;
 	texcoord = gl_MultiTexCoord0.xy;
 
-	lightmap = saturate(gl_MultiTexCoord1.xy * rcp(240.0));
+	vec2 baseLightmap = saturate(gl_MultiTexCoord1.xy * rcp(240.0));
+	originalLightmap = baseLightmap; // Store original for color tinting
 
 	#if defined PARALLAX || ANISOTROPIC_FILTER > 0
 		vec2 midCoord = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
@@ -81,7 +91,7 @@ void main() {
 		float tick = frameTimeCounter * PI;
 
 		float grassWeight = step(gl_MultiTexCoord0.y, mc_midTexCoord.y);
-		const float lightWeight = pow4(saturate(lightmap.y * 1.5 - 0.5));
+		const float lightWeight = pow4(saturate(baseLightmap.y * 1.5 - 0.5));
 
 		if (materialIDs == 5u) {
 			grassWeight *= 0.8;
@@ -113,6 +123,18 @@ void main() {
 	#endif
 
 	minecraftPos = position.xyz;
+
+	// Pass item IDs to fragment shader
+	itemId1 = heldItemId;
+	itemId2 = heldItemId2;
+
+	// Calculate distance for dynamic lighting
+	vec4 viewPosition = gl_ModelViewMatrix * gl_Vertex;
+	vec4 playerPos = gbufferModelViewInverse * viewPosition;
+	vertexDistance = length(playerPos.xyz);
+	
+	// Apply dynamic lighting to lightmap
+	lightmap = adjustLightmapWithDynamicLight(baseLightmap, vertexDistance, heldBlockLightValue, heldBlockLightValue2);
 
 	position.xyz -= cameraPosition;
 	gl_Position = gl_ProjectionMatrix * gbufferModelView * position;

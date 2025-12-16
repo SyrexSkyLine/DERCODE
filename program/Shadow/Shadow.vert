@@ -1,3 +1,4 @@
+
 #include "/lib/Head/Common.inc"
 
 uniform vec3 cameraPosition;
@@ -19,8 +20,8 @@ out vec3 viewPos;
 out vec3 minecraftPos;
 
 flat out mat3 tbnMatrix;
+
 flat out float isWater;
-flat out int isTorch; // Индикатор факела
 
 uniform mat4 shadowProjection;
 
@@ -59,7 +60,4 @@ void main() {
 
 	gl_Position.xyz = DistortShadowSpace(projMAD(gl_ProjectionMatrix, viewPos));
 	gl_Position.w = 1.0;
-
-	// Определяем, является ли объект факелом
-	isTorch = (blockEntityId == 10030) ? 1 : 0; // Проверяем ID факела
 }
