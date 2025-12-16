@@ -1,6 +1,4 @@
 
-// BRO I HATE THIS SHIT CODE I DONT USE MY BRAIN FOR CODED THIS PLS GIVE ME NORMAL LIGHT/SHADOW CODE PLEEEEEEEEEEEEEEEESE
-
 layout(location = 0) out vec4 albedoData;
 layout(location = 1) out vec3 colortex7Out;
 layout(location = 2) out vec4 colortex3Out;
@@ -26,7 +24,8 @@ in vec4 viewPos;
 in vec2 lightmap;
 
 flat in mat3 tbnMatrix;
-flat in int isTorch; // Индикатор факела
+
+//#include "/lib/Surface/ManualTBN.glsl"
 
 float bayer2 (vec2 a) { a = 0.5 * floor(a); return fract(1.5 * fract(a.y) + a.x); }
 #define bayer4(a) (bayer2(0.5 * (a)) * 0.25 + bayer2(a))
@@ -38,7 +37,9 @@ void main() {
 		albedo.rgb = vec3(1.0);
 	#endif
 
-    if (albedo.a < 0.1) { discard; return; }
+    //mat3 tbnMatrix = manualTBN(viewPos.xyz, texcoord);
+
+	if (albedo.a < 0.1) { discard; return; }
 
 	#ifdef MC_SPECULAR_MAP
 		vec4 specularData = texture(specular, texcoord);
@@ -82,7 +83,7 @@ void main() {
 	albedoData = albedo;
 
 	colortex7Out.xy = lightmap + (bayer4(gl_FragCoord.xy) - 0.5) * rcp(255.0);
-	colortex7Out.z = float(isTorch) / 255.0; // Передаём индикатор факела в z-канал
+	colortex7Out.z = 4.1 / 255.0;
 
 	colortex3Out.xy = EncodeNormal(normalData);
 	colortex3Out.z = PackUnorm2x8(specularData.rg);

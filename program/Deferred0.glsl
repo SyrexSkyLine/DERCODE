@@ -1,4 +1,3 @@
-
 #define DEFERRED0
 #define PRECOMPUTED_ATMOSPHERIC_SCATTERING
 
@@ -6,8 +5,6 @@ layout(location = 0) out vec3 transmittanceOut;
 layout(location = 1) out vec3 colortex5Out;
 
 /* DRAWBUFFERS:45 */
-
-//in vec2 screenCoord;
 
 flat in vec3 directIlluminance;
 flat in vec3 skyIlluminance;
@@ -22,6 +19,10 @@ flat in vec3 moonIlluminance;
 uniform sampler2D noisetex;
 uniform sampler3D colortex4;
 
+uniform int moonPhase;
+uniform sampler2D colortex15;
+
+
 uniform float nightVision;
 uniform float viewWidth;
 uniform float viewHeight;
@@ -32,13 +33,15 @@ uniform float worldTimeCounter;
 
 uniform vec3 cameraPosition;
 uniform vec3 worldSunVector;
-uniform vec3 worldLightVector;
+uniform vec3 worldLightVector;	
 
 uniform int frameCounter;
-uniform int moonPhase;
+
 
 uniform vec2 screenPixelSize;
 uniform vec2 screenSize;
+
+
 
 //----// FUNCTIONS //-----------------------------------------------------------------------------//
 
@@ -61,15 +64,16 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 
 	float LdotV = dot(worldDir, worldLightVector);
 
-	vec4 phases;	/* forwardsLobe */										/* backwardsLobe */																	/* forwardsPeak */
+	vec4 phases;
 	phases.x = 	HenyeyGreensteinPhase(LdotV, cloudForwardG) 	  * 0.7  + HenyeyGreensteinPhase(LdotV, cloudBackwardG)		  * cloudBackwardWeight  	  + CornetteShanksPhase(LdotV, 0.9) * cloudProperties.cloudPeakWeight;
 	phases.y = 	HenyeyGreensteinPhase(LdotV, cloudForwardG * 0.7) * 0.35 + HenyeyGreensteinPhase(LdotV, cloudBackwardG * 0.7) * cloudBackwardWeight * 0.6 + CornetteShanksPhase(LdotV, 0.6) * cloudProperties.cloudPeakWeight * 0.5;
 	phases.z = 	HenyeyGreensteinPhase(LdotV, cloudForwardG * 0.5) * 0.17 + HenyeyGreensteinPhase(LdotV, cloudBackwardG * 0.5) * cloudBackwardWeight * 0.3 + CornetteShanksPhase(LdotV, 0.4) * cloudProperties.cloudPeakWeight * 0.2;
 	phases.w = 	HenyeyGreensteinPhase(LdotV, cloudForwardG * 0.3) * 0.08 + HenyeyGreensteinPhase(LdotV, cloudBackwardG * 0.3) * cloudBackwardWeight * 0.2 + CornetteShanksPhase(LdotV, 0.2) * cloudProperties.cloudPeakWeight * 0.1;
-	//phases.x = MiePhaseClouds(LdotV, vec3(cloudForwardG, cloudBackwardG, 0.9), vec3(0.7, cloudBackwardWeight, cloudPeakWeight));
-	//phases.y = MiePhaseClouds(LdotV, vec3(cloudForwardG, cloudBackwardG, 0.9) * 0.7, vec3(0.35, cloudBackwardWeight * 0.6, cloudPeakWeight * 0.5));
-	//phases.z = MiePhaseClouds(LdotV, vec3(cloudForwardG, cloudBackwardG, 0.9) * 0.5, vec3(0.17, cloudBackwardWeight * 0.3, cloudPeakWeight * 0.2));
-	//phases.w = MiePhaseClouds(LdotV, vec3(cloudForwardG, cloudBackwardG, 0.9) * 0.3, vec3(0.08, cloudBackwardWeight * 0.15, cloudPeakWeight * 0.1));
+
+	bool isNight = worldSunVector.y < -0.04;
+	float moonPhaseFactor = length(moonIlluminance) / max(length(sunIlluminance), 1e-6);
+	float moonBoost = saturate(moonPhaseFactor * 1.4) * 1.8;
+	moonBoost *= float(isNight);
 
 	vec3 planeOrigin = vec3(0.0, planetRadius + eyeAltitude, 0.0);
     bool intersectsGround = RaySphereIntersection(planeOrigin, worldDir, planetRadius).y >= 0.0;
@@ -90,19 +94,16 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 				endLength = topIntersection.y;
 			}
 
-			// The range of eye in cloudsData
 			float rayRange = oneMinus(saturate((eyeAltitude - cloudProperties.maxAltitude) * 0.1)) *
 							oneMinus(saturate((cloudProperties.altitude - eyeAltitude) * 0.1));
 
-			// The ray distance in range
 			float rayDist = bottomIntersection.y >= 0.0 && eyeAltitude > cloudProperties.altitude ? bottomIntersection.x : topIntersection.y;
-			//rayDist = min(rayDist, cloudProperties.altitude * 10.0);
 
 			startLength *= oneMinus(rayRange);
 			endLength = mix(endLength, rayDist, rayRange);
 
 			uint raySteps = CLOUD_CUMULUS_SAMPLES / 2;
-			raySteps = uint(mix(raySteps, uint(raySteps * 0.6), abs(worldDir.y))); // Steps Fade
+			raySteps = uint(mix(raySteps, uint(raySteps * 0.6), abs(worldDir.y)));
 
 			float rayLength = clamp(endLength - startLength, 0.0, 2e4) * rcp(raySteps);
 			vec3 rayStep = rayLength * worldDir;
@@ -111,16 +112,10 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
             GetPlanetCurvePosition(rayPos);
 
 			float noiseDetail = GetNoiseDetail(worldDir);
-			//float lightNoise = InterleavedGradientNoise();
-
-			//uint raySteps = max(uint(CLOUD_CUMULUS_SAMPLES - sqrt(dist) * 0.06), CLOUD_CUMULUS_SAMPLES / 2);
-			//uint raySteps = uint(CLOUD_CUMULUS_SAMPLES);
 
 			float scatteringSun = 0.0;
 			float scatteringSky = 0.0;
 
-			//float powderIntensity = saturate(CornetteShanksPhase(LdotV, 0.5));
-			//float powderIntensity = 0.8 * sqr(dot(worldDir, worldLightVector) * 0.5 + 0.5);
 			float transmittance = 1.0;
 
 			for (uint i = 0u; i < raySteps; ++i, rayPos += rayStep) {
@@ -135,8 +130,6 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 
 				float sunlightOD = CloudVolumeSunLightOD(cloudProperties, rayPos, 0.5);
 
-				//float powder = 1.0 - expf(-density * 32.0);
-				//powder = powder * oneMinus(powderIntensity) + powderIntensity;
 				float bounceEstimate = oneMinus(expf(-density * 36.0)) * 0.82;
 				bounceEstimate /= 1.0 - bounceEstimate;
 
@@ -144,10 +137,6 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 				sunlightEnergy += 		expf(-sunlightOD * 0.8) * phases.y;
 				sunlightEnergy += 		expf(-sunlightOD * 0.3) * phases.z;
 				sunlightEnergy += 		expf(-sunlightOD * 0.1) * phases.w;
-				// float sunlightEnergy = 	rcp(sunlightOD * 2.0 + 1.0) * phases.x;
-				// sunlightEnergy += 		rcp(sunlightOD * 0.9 + 1.0) * phases.y;
-				// sunlightEnergy += 		rcp(sunlightOD * 0.4 + 1.0) * phases.z;
-				// sunlightEnergy += 		rcp(sunlightOD * 0.2 + 1.0) * phases.w;
 
 				float skylightEnergy = CloudVolumeSkyLightOD(cloudProperties, rayPos, 0.5);
 				skylightEnergy = expf(-skylightEnergy) + expf(-skylightEnergy * 0.1) * 0.1;
@@ -164,11 +153,10 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 				vec3 scattering = scatteringSun * 22.0 * cloudProperties.sunlighting * (moonlit ? moonIlluminance : sunIlluminance);
 				scattering += scatteringSky * 0.15 * cloudProperties.skylighting * skyIlluminance;
 
-				// lightning
 				if (isLightningFlashing > 1e-2) scattering += sqr(scatteringSky) * 0.1 * lightningColor;
 
 				#ifdef AURORA
-					scattering += sqr(scatteringSky) * vec3(0.021, 0.04, 0.07) * auroraAmount;
+					scattering += sqr(scatteringSky) * vec3(0.0, 0.001, 0.0005) * auroraAmount;
 				#endif
 
 				rayPos -= cameraPosition;
@@ -189,8 +177,6 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 	#endif
 
 	#ifdef PLANAR_CLOUDS
-		//vec4 cloudsTemp = PlanarClouds(worldDir, dither, phases, transmittanceTemp);
-
 		if ((worldDir.y > 0.0 && eyeAltitude < CLOUD_PLANE_ALTITUDE)
 		|| (intersectsGround && eyeAltitude > CLOUD_PLANE_ALTITUDE)) {
 			vec2 intersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + CLOUD_PLANE_ALTITUDE);
@@ -221,7 +207,6 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 								sampleTemp.rgb += aerialPerspective * sampleTemp.a;
 							#else
 								float atmosFade = expf(-cloudDistance * fma(0.05, wetness, 0.1) * 0.00015);
-							// 	sampleTemp.rgb += skyRadiance * sampleTemp.a * oneMinus(airTransmittance);
 							#endif
 							sampleTemp.rgb = sampleTemp.rgb * atmosFade + skyRadiance * sampleTemp.a * oneMinus(atmosFade);
 						}
@@ -244,7 +229,6 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 								sampleTemp.rgb += aerialPerspective * sampleTemp.a;
 							#else
 								float atmosFade = expf(-cloudDistance * fma(0.05, wetness, 0.1) * 0.00015);
-							// 	sampleTemp.rgb += skyRadiance * sampleTemp.a * oneMinus(airTransmittance);
 							#endif
 							sampleTemp.rgb = sampleTemp.rgb * atmosFade + skyRadiance * sampleTemp.a * oneMinus(atmosFade);
 						}
@@ -267,14 +251,15 @@ vec3 RenderSkybox(in vec3 worldDir, in CloudProperties cloudProperties) {
 
 	vec3 skyboxData = skyRadiance * cloudsData.a + cloudsData.rgb;
 
-	// #ifdef AURORA
-	// 	if (auroraAmount > 1e-2) skyboxData.rgb += NightAurora(worldDir) * cloudsData.a;
-	// #endif
-
 	vec3 sunmoon = RenderSun(worldDir, worldSunVector);
 	sunmoon += RenderMoonReflection(worldDir, worldSunVector);
 
 	skyboxData += sunmoon * remap(minTransmittance, 1.0, cloudsData.a) * transmittance;
+
+	skyboxData += RenderMoon(worldDir, worldSunVector);
+	
+	// ✅✅✅ ДОДАНО РЕНДЕРИНГ ПЛАНЕТИ ✅✅✅
+	skyboxData += RenderPlanet(worldDir, worldSunVector);
 
 	return clamp16F(skyboxData);
 }
@@ -306,13 +291,9 @@ void main() {
 		#endif
 		}
 	} else if (gl_FragCoord.y < skyCaptureRes.y + 2.0) {
-		// Raw sky map
-
 		vec3 worldDir = UnprojectSky(gl_FragCoord.xy * rcp(skyCaptureRes));
 		colortex5Out = GetSkyRadiance(atmosphereModel, worldDir, worldSunVector, transmittanceOut) * 20.0;
 	} else {
-		// Sky map with clouds
-
 		vec3 worldDir = UnprojectSky(gl_FragCoord.xy * rcp(skyCaptureRes) - vec2(0.0, 1.0));
 		colortex5Out = RenderSkybox(worldDir, GetGlobalCloudProperties());
 	}

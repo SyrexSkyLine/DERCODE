@@ -1,3 +1,4 @@
+
 uniform vec2 taaOffset;
 
 #ifndef MC_GL_VENDOR_INTEL
@@ -13,7 +14,6 @@ out vec2 texcoord;
 out vec2 lightmap;
 
 flat out mat3 tbnMatrix;
-flat out int isTorch; // Индикатор факела
 
 #include "/Settings.glsl"
 
@@ -35,7 +35,4 @@ void main() {
 	#ifdef TAA_ENABLED
 		gl_Position.xy += taaOffset * gl_Position.w;
 	#endif
-
-	// Определяем, является ли объект факелом (замени на реальный ID факела, если нужно)
-	isTorch = (gl_VertexID == 10030) ? 1 : 0; // Пример для факела
 }

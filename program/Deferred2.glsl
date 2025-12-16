@@ -1,15 +1,10 @@
 
-
-#define SHADOW_STYLE 0 // [0 1 2]
 in vec2 screenCoord;
 
 #include "/lib/Head/Common.inc"
 #include "/lib/Head/Uniforms.inc"
 
 uniform bool worldTimeChanged;
- // Добавляем uniform для ID предмета в руке (в shaders.properties нужно добавить uniform int heldItemId;)
-
-
 
 //----------------------------------------------------------------------------//
 
@@ -89,9 +84,6 @@ layout(location = 0) out vec4 indirectData;
 	#include "/lib/Lighting/GlobalIllumination.glsl"
 #endif
 
-// Добавляем функцию ViewToScreenSpace (инверсия ScreenToViewSpace)
-
-
 vec4 TemporalLightAccumulation() {
 	if (all(lessThan(screenCoord, vec2(0.5)))) {
 		ivec2 texel = ivec2(gl_FragCoord.xy) * 2;
@@ -140,51 +132,6 @@ vec4 TemporalLightAccumulation() {
 		#ifdef GI_ENABLED
 			currLight.rgb = CalculateRSM(viewPos, worldNormal, RandNextF());
 		#endif
-
-		// Добавляем расчет теней от факела в руке, если игрок держит факел (предполагаем ID факела = 50, измени на реальный ID torches)
-		bool hasTorch = (heldItemId == 50); // ID обычного факела в Minecraft - 50, для soul torch - 169 и т.д.
-		if (hasTorch && depth < 1.0) { // Только если держит факел и не небо
-			vec3 torchViewPos = vec3(0.3, -0.5, -0.5); // Позиция факела в view space (справа, снизу, впереди от камеры; подстрой под себя)
-			vec3 toTorch = torchViewPos - viewPos;
-			float dist = length(toTorch);
-			if (dist > 0.01 && dist < 5.0) { // Только на близком расстоянии (до 5 блоков)
-				vec3 dir = toTorch / dist;
-				float lambert = max(0.0, dot(normal, dir));
-				if (lambert > 0.0) {
-					float shadowFactor = 1.0;
-
-					#if SHADOW_STYLE == 0 // Стиль 0: Простая тень как в HL2 (само-затенение на основе угла)
-						shadowFactor = smoothstep(0.0, 0.5, lambert); // Плавное затенение на основе ламберта (угловая тень)
-
-					#elif SHADOW_STYLE == 1 // Стиль 1: Тень за счет AO (используем существующее AO для имитации окклюзии)
-						shadowFactor = currLight.a; // Модулируем на основе AO (темнее в углублениях)
-
-					#elif SHADOW_STYLE == 2 // Стиль 2: Тень как в IterationT (screen-space ray marching для проверки окклюзии)
-						shadowFactor = 0.0; // По умолчанию затенено
-						vec3 rayPos = viewPos + normal * 0.02; // Смещение от поверхности
-						vec3 rayStep = dir * (dist / 20.0); // Шаги ray march (20 шагов)
-						for (int i = 0; i < 20; ++i) {
-							rayPos += rayStep;
-							vec3 rayScreen = ViewToScreenSpace(rayPos);
-							if (rayScreen.x < 0.0 || rayScreen.x > 1.0 || rayScreen.y < 0.0 || rayScreen.y > 1.0) break; // За экраном
-							float sampledDepth = texture(depthtex0, rayScreen.xy).r;
-							if (rayScreen.z > sampledDepth + 0.001) { // Если ray попал за геометрию
-								shadowFactor = 0.0;
-								break;
-							}
-							if (length(rayPos - torchViewPos) < length(rayStep)) { // Достигли факела
-								shadowFactor = 1.0;
-								break;
-							}
-						}
-					#endif
-
-					// Добавляем свет от факела с учетом тени (оранжевый цвет факела)
-					float intensity = (lambert * shadowFactor) / (dist * dist + 1.0); // Затухание с расстоянием
-					currLight.rgb += intensity * vec3(1.0, 0.6, 0.3) * 5.0; // Цвет и сила света (подстрой)
-				}
-			}
-		}
 
 		vec2 prevCoord = Reproject(screenPos).xy;
 
