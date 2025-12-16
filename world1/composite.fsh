@@ -29,7 +29,6 @@ in vec2 screenCoord;
 #include "/lib/Atmosphere/VolumetricFogEnd.glsl"
 
 #include "/lib/Water/WaterFog.glsl"
-#include "/lib/RethinkVoxels.glsl"
 
 //----// MAIN //----------------------------------------------------------------------------------//
 void main() {
@@ -74,27 +73,6 @@ void main() {
 	#ifdef UW_VOLUMETRIC_LIGHT
 		if (isEyeInWater == 1) fogData.rgb = UnderwaterVolumetricLight(worldPos, worldDir, dither);
 	#endif
-
-
-// --- Auto-inserted Rethink Voxel GI (Roblox Future Light color) ---
-#ifdef RETHINK_VOXELS_GLSL
-    vec2 rv_uv = gl_FragCoord.xy * screenPixelSize;
-    float rv_depth = rv_GetDepth(rv_uv);
-    vec3 rv_viewPos = rv_ReconstructViewPos(rv_uv, rv_depth);
-    vec3 rv_normal = rv_GetNormal(rv_uv);
-    vec3 rv_indirect = rv_rethinkVoxelGI(rv_uv, rv_viewPos, rv_normal);
-    // stylized boost for Roblox look
-    rv_indirect *= 1.15;
-    // apply to sceneData (if exists) or to finalColor
-    #ifdef sceneData
-        sceneData += rv_indirect;
-    #else
-        #ifdef finalColor
-            finalColor.rgb += rv_indirect;
-        #endif
-    #endif
-#endif
-// --- end Rethink GI injection ---
 }
 
 /* DRAWBUFFERS:14 */
