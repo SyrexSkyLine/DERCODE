@@ -1,3 +1,4 @@
+
 #define CLOUD_CUMULUS_CLEAR_ALTITUDE	1000 // [60 80 100 150 200 300 356 400 500 600 700 800 1000 1200 1500 2000 5000 10000]
 
 #define CLOUD_CUMULUS_CLEAR_THICKNESS	1400 // [0 100 200 300 400 500 550 600 700 800 1000 1200 1400 1500 1800 2000 3000 5000 6000]
@@ -26,8 +27,8 @@
 
 #define CLOUD_CUMULUS_SAMPLES 			32 	 // [4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 36 40 50 60 100]
 
-#define CLOUD_CUMULUS_SUNLIGHT_SAMPLES 	6 	 // [2 3 4 5 6 7 8 9 10 12 15 17 20] Increased for better light sampling
-#define CLOUD_CUMULUS_SKYLIGHT_SAMPLES 	4 	 // [2 3 4 5 6 7 8 9 10 12 15 17 20] Increased for better ambient
+#define CLOUD_CUMULUS_SUNLIGHT_SAMPLES 	4 	 // [2 3 4 5 6 7 8 9 10 12 15 17 20]
+#define CLOUD_CUMULUS_SKYLIGHT_SAMPLES 	2 	 // [2 3 4 5 6 7 8 9 10 12 15 17 20]
 
 #define CLOUD_LOCAL_COVERAGE
 
@@ -85,12 +86,6 @@ vec3 wind = vec3(2e-3, 2e-4, 1e-3) * worldTimeCounter * CLOUDS_SPEED;
 float cloudForwardG = 0.6 - wetness * 0.2, cloudBackwardG = -0.4 + wetness * 0.2;
 const float cloudBackwardWeight = 0.25, octWeight = 0.5, octScale = 3.0;
 
-float HenyeyGreenstein(float cosTheta, float g) {
-    float g2 = g * g;
-    float denom = 1.0 + g2 - 2.0 * g * cosTheta;
-    return (1.0 - g2) / (4.0 * 3.14159265 * denom * sqrt(denom));
-}
-
 float CloudVolumeDensity(in CloudProperties cloudProperties, in vec3 worldPos, in uint steps, in float noiseDetail) {
 	#ifdef CLOUD_LOCAL_COVERAGE
 		float localCoverage = texture(noisetex, worldPos.xz * 2e-7 - wind.xz * 2e-3).y;
@@ -100,18 +95,14 @@ float CloudVolumeDensity(in CloudProperties cloudProperties, in vec3 worldPos, i
 
 	vec3 position = worldPos * cloudProperties.noiseScale - wind;
 
-	float density = noiseDetail * 0.05; // Slightly increased for more detail
-    float weight = 0.5;
+	float density = noiseDetail * 0.03, weight = 0.5;
 
-    for (uint i = 0u; i < steps; ++i, weight *= octWeight) { // Increased steps in calls for better fbm
+    for (uint i = 0u; i < steps; ++i, weight *= octWeight) {
 		density += weight * Get3DNoiseSmooth(position);
         position = position * octScale - wind;
     }
 
 	density += octWeight / octScale / steps;
-
-	// Add high-frequency detail for fluffiness
-	density += Get3DNoiseSmooth(position * 8.0) * 0.1 * (1.0 - saturate((worldPos.y - cloudProperties.altitude) / cloudProperties.thickness));
 
 	// vec4 lowFreqNoises = texture(colortex8, fract(position));
 	// float fbm = lowFreqNoises.g * 0.625 + lowFreqNoises.b * 0.25 + lowFreqNoises.a * 0.125;
@@ -126,16 +117,6 @@ float CloudVolumeDensity(in CloudProperties cloudProperties, in vec3 worldPos, i
 
 	float normalizedHeight  = saturate((worldPos.y - cloudProperties.altitude) * rcp(cloudProperties.thickness));
 	float heightAttenuation = saturate(normalizedHeight * 6.6) * saturate(oneMinus(normalizedHeight) * (2.0 + wetness));
-
-	// Add cloud peaks for more cumulus-like shape
-	float peakNoise = Get3DNoiseSmooth(position * 0.5 + vec3(0.0, worldTimeCounter * 0.05, 0.0)); // Animated peaks
-	density *= 1.0 + cloudProperties.cloudPeakWeight * saturate(1.0 - normalizedHeight * 2.0) * peakNoise;
-
-	// Simple erosion at the top for sharper edges
-	if (normalizedHeight > 0.7) {
-		float erosion = Get3DNoiseSmooth(position * 4.0);
-		density *= 1.0 - (erosion * 0.5 * (normalizedHeight - 0.7) * 5.0);
-	}
 
 	density = cloudProperties.coverage == 1.0 ? density : saturate((density - 1.0 + cloudProperties.coverage) * rcp(cloudProperties.coverage));
 
@@ -173,7 +154,7 @@ float CloudVolumeDensity(in CloudProperties cloudProperties, in vec3 worldPos, i
 
 		float density = 0.03, weight = 0.5;
 
-		for (uint i = 0u; i < 6u; ++i, weight *= octWeight) { // Increased octaves
+		for (uint i = 0u; i < 4u; ++i, weight *= octWeight) {
 			density += weight * GetShadow3DNoiseSmooth(position);
 			position = (position - wind) * octScale;
 		}
@@ -228,7 +209,7 @@ float CloudVolumeSunLightOD(in CloudProperties cloudProperties, in vec3 rayPos, 
         rayStep *= 2.0;
 		// if (rayPos.y < cloudProperties.altitude || rayPos.y > cloudProperties.maxAltitude) continue;
 
-		float density = CloudVolumeDensity(cloudProperties, rayPos + rayStep.xyz * lightNoise, 6u, 1.0); // Increased fbm steps
+		float density = CloudVolumeDensity(cloudProperties, rayPos + rayStep.xyz * lightNoise, 5u, 1.0);
 		if (density < 1e-4) continue;
 
         // opticalDepth += density * rayStep.w;
@@ -240,7 +221,7 @@ float CloudVolumeSunLightOD(in CloudProperties cloudProperties, in vec3 rayPos, 
 
 float CloudVolumeSkyLightOD(in CloudProperties cloudProperties, in vec3 rayPos, in float lightNoise) {
     float rayLength = cloudProperties.thickness * (0.2 / float(CLOUD_CUMULUS_SKYLIGHT_SAMPLES));
-	vec4 rayStep = vec4(vec3(0.021, 0.04, 0.07), 1.0) * rayLength;
+	vec4 rayStep = vec4(vec3(0.0, 1.0, 0.0), 1.0) * rayLength;
 
     float opticalDepth = 0.0;
 
@@ -248,7 +229,7 @@ float CloudVolumeSkyLightOD(in CloudProperties cloudProperties, in vec3 rayPos, 
         rayStep *= 2.0;
 		// if (rayPos.y < cloudProperties.altitude || rayPos.y > cloudProperties.maxAltitude) continue;
 
-		float density = CloudVolumeDensity(cloudProperties, rayPos + rayStep.xyz * lightNoise, 4u, 1.0); // Increased
+		float density = CloudVolumeDensity(cloudProperties, rayPos + rayStep.xyz * lightNoise, 3u, 1.0);
 		if (density < 1e-4) continue;
 
         // opticalDepth += density * rayStep.w;
@@ -259,125 +240,230 @@ float CloudVolumeSkyLightOD(in CloudProperties cloudProperties, in vec3 rayPos, 
     return opticalDepth * rayLength * 0.04;
 }
 
-vec4 VolumetricClouds(in vec3 worldDir, in float dither, in float lightNoise, in vec4 phases, in CloudProperties cloudProperties, inout float transmittance) {
-	//CloudProperties cp = cloudProperties;
+// vec4 VolumetricClouds(in vec3 worldDir, in float dither, in float lightNoise, in vec4 phases, in CloudProperties cloudProperties, inout float transmittance) {
+// 	//CloudProperties cp = cloudProperties;
 
-	if ((worldDir.y < 0.0 && eyeAltitude < cloudProperties.altitude)
-	 || (worldDir.y > 0.0 && eyeAltitude > cloudProperties.maxAltitude)) return vec4(0.0, 0.0, 0.0, 1.0);
+// 	if ((worldDir.y < 0.0 && eyeAltitude < cloudProperties.altitude)
+// 	 || (worldDir.y > 0.0 && eyeAltitude > cloudProperties.maxAltitude)) return vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 planeOrigin = vec3(0.0, planetRadius + eyeAltitude, 0.0);
-	vec2 bottomIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.altitude);
-	vec2 topIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.maxAltitude);
+// 	vec3 planeOrigin = vec3(0.0, planetRadius + eyeAltitude, 0.0);
+// 	vec2 bottomIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.altitude);
+// 	vec2 topIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.maxAltitude);
 
-	float startLength, endLength;
-	if (eyeAltitude > cloudProperties.maxAltitude) {
-		startLength = topIntersection.x;
-		endLength = bottomIntersection.x;
-	} else {
-		startLength = bottomIntersection.y;
-		endLength = topIntersection.y;
-	}
+// 	float startLength, endLength;
+// 	if (eyeAltitude > cloudProperties.maxAltitude) {
+// 		startLength = topIntersection.x;
+// 		endLength = bottomIntersection.x;
+// 	} else {
+// 		startLength = bottomIntersection.y;
+// 		endLength = topIntersection.y;
+// 	}
 
-	// The range of eye in cloudsData
-	float rayRange = oneMinus(saturate((eyeAltitude - cloudProperties.maxAltitude) * 0.1)) *
-					 oneMinus(saturate((cloudProperties.altitude - eyeAltitude) * 0.1));
+// 	// The range of eye in cloudsData
+// 	float rayRange = oneMinus(saturate((eyeAltitude - cloudProperties.maxAltitude) * 0.1)) *
+// 					 oneMinus(saturate((cloudProperties.altitude - eyeAltitude) * 0.1));
 
-	// The ray distance in range
-	float rayDist = bottomIntersection.y >= 0.0 && eyeAltitude > cloudProperties.altitude ? bottomIntersection.x : topIntersection.y;
-	//rayDist = min(rayDist, cloudProperties.altitude * 10.0);
+// 	// The ray distance in range
+// 	float rayDist = bottomIntersection.y >= 0.0 && eyeAltitude > cloudProperties.altitude ? bottomIntersection.x : topIntersection.y;
+// 	//rayDist = min(rayDist, cloudProperties.altitude * 10.0);
 
-	startLength *= oneMinus(rayRange);
-	endLength = mix(endLength, rayDist, rayRange);
+// 	startLength *= oneMinus(rayRange);
+// 	endLength = mix(endLength, rayDist, rayRange);
 
-	uint raySteps = CLOUD_CUMULUS_SAMPLES;
-	raySteps = uint(mix(raySteps, uint(raySteps / 1.6), abs(worldDir.y))); // Steps Fade
+// 	uint raySteps = CLOUD_CUMULUS_SAMPLES;
+// 	raySteps = uint(mix(raySteps, uint(raySteps / 1.6), abs(worldDir.y))); // Steps Fade
 
-    float rayLength = clamp(endLength - startLength, 0.0, 2e4) * rcp(raySteps);
-	vec3 rayStep = rayLength * worldDir;
-	vec3 rayPos = (startLength + rayLength * dither) * worldDir + cameraPosition;
+//     float rayLength = clamp(endLength - startLength, 0.0, 2e4) * rcp(raySteps);
+// 	vec3 rayStep = rayLength * worldDir;
+// 	vec3 rayPos = (startLength + rayLength * dither) * worldDir + cameraPosition;
 
-	//float dist = distance(rayPos, cameraPosition);
-	//float noiseDetail = mix(GetNoiseDetail(worldDir), 1.0, exp2(-dist * 0.0007f) * 0.8) * 0.03;
-	float noiseDetail = GetNoiseDetail(worldDir);
-	//float lightNoise = InterleavedGradientNoise();
+// 	//float dist = distance(rayPos, cameraPosition);
+// 	//float noiseDetail = mix(GetNoiseDetail(worldDir), 1.0, exp2(-dist * 0.0007f) * 0.8) * 0.03;
+// 	float noiseDetail = GetNoiseDetail(worldDir);
+// 	//float lightNoise = InterleavedGradientNoise();
 
-	//uint raySteps = max(uint(CLOUD_CUMULUS_SAMPLES - sqrt(dist) * 0.06), CLOUD_CUMULUS_SAMPLES / 2);
-	//uint raySteps = uint(CLOUD_CUMULUS_SAMPLES);
+// 	//uint raySteps = max(uint(CLOUD_CUMULUS_SAMPLES - sqrt(dist) * 0.06), CLOUD_CUMULUS_SAMPLES / 2);
+// 	//uint raySteps = uint(CLOUD_CUMULUS_SAMPLES);
 
-	//float LdotV01 = dot(worldDir, worldLightVector) * 0.5 + 0.5;
-	//float LdotV = dot(worldDir, worldLightVector);
+// 	//float LdotV01 = dot(worldDir, worldLightVector) * 0.5 + 0.5;
+// 	//float LdotV = dot(worldDir, worldLightVector);
 
-	float scatteringSun = 0.0;
-	float scatteringSky = 0.0;
+// 	float scatteringSun = 0.0;
+// 	float scatteringSky = 0.0;
 
-    // Compute phase function for anisotropic scattering (key for realism)
-    float cosTheta = dot(worldDir, worldLightVector);
-    float phaseF = HenyeyGreenstein(cosTheta, cloudForwardG);
-    float phaseB = HenyeyGreenstein(cosTheta, cloudBackwardG);
-    float phase = mix(phaseF, phaseB, cloudBackwardWeight);
+//     //float powderIntensity = saturate(CornetteShanksPhase(LdotV, 0.5));
+//     //float powderIntensity = 0.8 * sqr(dot(worldDir, worldLightVector) * 0.5 + 0.5);
 
-	//float powderIntensity = saturate(CornetteShanksPhase(LdotV, 0.5));
-    //float powderIntensity = 0.8 * sqr(dot(worldDir, worldLightVector) * 0.5 + 0.5);
+// 	for (uint i = 0u; i < raySteps; ++i, rayPos += rayStep) {
+// 		if (transmittance < minTransmittance) break;
+//         if (rayPos.y < cloudProperties.altitude || rayPos.y > cloudProperties.maxAltitude) continue;
 
-	for (uint i = 0u; i < raySteps; ++i, rayPos += rayStep) {
-		if (transmittance < minTransmittance) break;
-        if (rayPos.y < cloudProperties.altitude || rayPos.y > cloudProperties.maxAltitude) continue;
+// 		float dist = distance(rayPos, cameraPosition);
+// 		if (dist > 1e5 - 3e4 * wetness) continue;
 
-		float dist = distance(rayPos, cameraPosition);
-		if (dist > 1e5 - 3e4 * wetness) continue;
+// 		float density = CloudVolumeDensity(cloudProperties, rayPos, 5u, mix(noiseDetail, 1.0, exp2(-dist * 0.001f)));
+// 		if (density < 1e-4) continue;
 
-		float density = CloudVolumeDensity(cloudProperties, rayPos, 6u, mix(noiseDetail, 1.0, exp2(-dist * 0.001f))); // Increased fbm
-		if (density < 1e-4) continue;
+// 		float sunlightOD = CloudVolumeSunLightOD(cloudProperties, rayPos, lightNoise);
 
-		float sunlightOD = CloudVolumeSunLightOD(cloudProperties, rayPos, lightNoise);
+// 		//float powder = 1.0 - expf(-density * 32.0);
+// 	    //powder = powder * oneMinus(powderIntensity) + powderIntensity;
+// 		float bounceEstimate = oneMinus(expf(-density * 32.0)) * 0.82;
+// 	    bounceEstimate /= 1.0 - bounceEstimate;
 
-		//float powder = 1.0 - expf(-density * 32.0);
- 	    //powder = powder * oneMinus(powderIntensity) + powderIntensity;
-		float bounceEstimate = oneMinus(expf(-density * 32.0)) * 0.82;
- 	    bounceEstimate /= 1.0 - bounceEstimate;
+// 		//float sunlightEnergy = 	expf(-sunlightOD * 2.0) * phases.x;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.8) * phases.y;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.3) * phases.z;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.1) * phases.w;
+// 		float sunlightEnergy = 	rcp(sunlightOD * 2.0 + 1.0) * phases.x;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.9 + 1.0) * phases.y;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.4 + 1.0) * phases.z;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.2 + 1.0) * phases.w;
 
-		//float sunlightEnergy = 	expf(-sunlightOD * 2.0) * phases.x;
-		//sunlightEnergy += 		expf(-sunlightOD * 0.8) * phases.y;
-		//sunlightEnergy += 		expf(-sunlightOD * 0.3) * phases.z;
-		//sunlightEnergy += 		expf(-sunlightOD * 0.1) * phases.w;
-		float sunlightEnergy = 	rcp(sunlightOD * 2.0 + 1.0) * phases.x;
-		sunlightEnergy += 		rcp(sunlightOD * 0.9 + 1.0) * phases.y;
-		sunlightEnergy += 		rcp(sunlightOD * 0.4 + 1.0) * phases.z;
-		sunlightEnergy += 		rcp(sunlightOD * 0.2 + 1.0) * phases.w;
+// 		float skylightEnergy = CloudVolumeSkyLightOD(cloudProperties, rayPos, lightNoise);
+// 		skylightEnergy = expf(-skylightEnergy) + expf(-skylightEnergy * 0.1) * 0.1;
 
-		float skylightEnergy = CloudVolumeSkyLightOD(cloudProperties, rayPos, lightNoise);
-		skylightEnergy = expf(-skylightEnergy) + expf(-skylightEnergy * 0.1) * 0.1;
+// 		float stepTransmittance = expf(-density * 0.1 * rayLength);
+// 		float cloudSample = bounceEstimate * transmittance * oneMinus(stepTransmittance);
+// 		scatteringSun += sunlightEnergy * cloudSample;
+// 		scatteringSky += skylightEnergy * cloudSample;
+// 		transmittance *= stepTransmittance;	
+// 	}
+// 	if (transmittance > 0.999) return vec4(0.0, 0.0, 0.0, 1.0);
 
-		float stepTransmittance = expf(-density * 0.1 * rayLength);
-		float cloudSample = bounceEstimate * transmittance * oneMinus(stepTransmittance);
-		scatteringSun += sunlightEnergy * cloudSample;
-		scatteringSky += skylightEnergy * cloudSample;
-		transmittance *= stepTransmittance;	
-	}
-	if (transmittance > 0.999) return vec4(0.0, 0.0, 0.0, 1.0);
+// 	vec3 scattering = scatteringSun * 64.0 * cloudProperties.sunlighting * SunAbsorptionAtAltitude(1.0);
+// 	scattering *= saturate(worldLightVector.y * 40.0);
+// 	if (cloudMoonlit) scattering = DoNightEye(scattering * MoonFlux);
+// 	scattering += scatteringSky * 0.2 * cloudProperties.skylighting * skyIlluminance;
 
-    // Apply phase to total sun scattering for anisotropic effects
-    scatteringSun *= phase;
+// 	// lightning
+// 	if (isLightningFlashing > 1e-2) scattering += sqr(scatteringSky) * 0.1 * lightningColor;
 
-	vec3 scattering = scatteringSun * 64.0 * cloudProperties.sunlighting * SunAbsorptionAtAltitude(1.0);
-	scattering *= saturate(worldLightVector.y * 40.0);
-	if (cloudMoonlit) scattering = DoNightEye(scattering * MoonFlux);
-	scattering += scatteringSky * 0.2 * cloudProperties.skylighting * skyIlluminance;
+// 	#ifdef AURORA
+// 		scattering += sqr(scatteringSky) * vec3(0.0, 0.002, 0.001) * auroraAmount;
+// 	#endif
 
-	// lightning
-	if (isLightningFlashing > 1e-2) scattering += sqr(scatteringSky) * 0.1 * lightningColor;
+// 	float atmosFade = expf(-distance(rayPos, cameraPosition) * (0.03 + 0.02 * wetness) * rcp(cloudProperties.altitude));
+// 	//color *= 1.0 - atmosFade + transmittance * atmosFade;
 
-	#ifdef AURORA
-		scattering += sqr(scatteringSky) * vec3(0.021, 0.04, 0.07) * auroraAmount;
-	#endif
+// 	vec3 atmos = Atmosphere(worldDir, worldSunVector, 1.0, endLength * 1e-4);
+// 	//atmos += DoNightEye(Atmosphere(worldDir, -worldSunVector, 1.0, endLength * 1e-4) * MoonFlux);
+// 	//color += (scattering + atmos) * atmosFade;
+// 	//color += scattering * atmosFade;
 
-	float atmosFade = expf(-distance(rayPos, cameraPosition) * (0.03 + 0.02 * wetness) * rcp(cloudProperties.altitude));
-	color *= 1.0 - atmosFade + transmittance * atmosFade;
+// 	return vec4((scattering + atmos) * atmosFade, 1.0 - atmosFade + transmittance * atmosFade);
+// }
 
-	vec3 atmos = Atmosphere(worldDir, worldSunVector, 1.0, endLength * 1e-4);
-	//atmos += DoNightEye(Atmosphere(worldDir, -worldSunVector, 1.0, endLength * 1e-4) * MoonFlux);
-	//color += (scattering + atmos) * atmosFade;
-	//color += scattering * atmosFade;
+// vec4 VolumetricCloudsRef(in vec3 worldDir, in vec4 phases, in CloudProperties cloudProperties, inout float transmittance) {
+// 	//CloudProperties cp = cloudProperties;
 
-	return vec4((scattering + atmos) * atmosFade, 1.0 - atmosFade + transmittance * atmosFade);
-}
+// 	if ((worldDir.y < 0.0 && eyeAltitude < cloudProperties.altitude)
+// 	 || (worldDir.y > 0.0 && eyeAltitude > cloudProperties.maxAltitude)) return vec4(0.0, 0.0, 0.0, 1.0);
+
+// 	vec3 planeOrigin = vec3(0.0, planetRadius + eyeAltitude, 0.0);
+// 	vec2 bottomIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.altitude);
+// 	vec2 topIntersection = RaySphereIntersection(planeOrigin, worldDir, planetRadius + cloudProperties.maxAltitude);
+
+// 	float startLength, endLength;
+// 	if (eyeAltitude > cloudProperties.maxAltitude) {
+// 		startLength = topIntersection.x;
+// 		endLength = bottomIntersection.x;
+// 	} else {
+// 		startLength = bottomIntersection.y;
+// 		endLength = topIntersection.y;
+// 	}
+
+// 	// The range of eye in cloudsData
+// 	float rayRange = oneMinus(saturate((eyeAltitude - cloudProperties.maxAltitude) * 0.1)) *
+// 					 oneMinus(saturate((cloudProperties.altitude - eyeAltitude) * 0.1));
+
+// 	// The ray distance in range
+// 	float rayDist = bottomIntersection.y >= 0.0 && eyeAltitude > cloudProperties.altitude ? bottomIntersection.x : topIntersection.y;
+// 	//rayDist = min(rayDist, cloudProperties.altitude * 10.0);
+
+// 	startLength *= oneMinus(rayRange);
+// 	endLength = mix(endLength, rayDist, rayRange);
+
+// 	uint raySteps = uint(CLOUD_CUMULUS_SAMPLES * 0.6);
+// 	raySteps = uint(mix(raySteps, uint(raySteps / 1.6), abs(worldDir.y))); // Steps Fade
+
+//     float rayLength = clamp(endLength - startLength, 0.0, 2e4) * rcp(raySteps);
+// 	vec3 rayStep = rayLength * worldDir;
+// 	vec3 rayPos = (startLength + rayLength * 0.5) * worldDir + cameraPosition;
+
+// 	//float dist = distance(rayPos, cameraPosition);
+// 	//float noiseDetail = mix(GetNoiseDetail(worldDir), 1.0, exp2(-dist * 0.0007f) * 0.8) * 0.03;
+// 	float noiseDetail = GetNoiseDetail(worldDir);
+// 	//float lightNoise = InterleavedGradientNoise();
+
+// 	//uint raySteps = max(uint(CLOUD_CUMULUS_SAMPLES - sqrt(dist) * 0.06), CLOUD_CUMULUS_SAMPLES / 2);
+// 	//uint raySteps = uint(CLOUD_CUMULUS_SAMPLES);
+
+// 	//float LdotV01 = dot(worldDir, worldLightVector) * 0.5 + 0.5;
+// 	//float LdotV = dot(worldDir, worldLightVector);
+
+// 	float scatteringSun = 0.0;
+// 	float scatteringSky = 0.0;
+
+//     //float powderIntensity = saturate(CornetteShanksPhase(LdotV, 0.5));
+//     //float powderIntensity = 0.8 * sqr(dot(worldDir, worldLightVector) * 0.5 + 0.5);
+
+// 	for (uint i = 0u; i < raySteps; ++i, rayPos += rayStep) {
+// 		if (transmittance < minTransmittance) break;
+//         if (rayPos.y < cloudProperties.altitude || rayPos.y > cloudProperties.maxAltitude) continue;
+
+// 		float dist = distance(rayPos, cameraPosition);
+// 		if (dist > 1e5 - 3e4 * wetness) continue;
+
+// 		float density = CloudVolumeDensity(cloudProperties, rayPos, 5u, mix(noiseDetail, 1.0, exp2(-dist * 0.001f)));
+// 		if (density < 1e-4) continue;
+
+// 		float sunlightOD = CloudVolumeSunLightOD(cloudProperties, rayPos, 0.5);
+
+// 		//float powder = 1.0 - expf(-density * 32.0);
+// 	    //powder = powder * oneMinus(powderIntensity) + powderIntensity;
+// 		float bounceEstimate = oneMinus(expf(-density * 32.0)) * 0.82;
+// 	    bounceEstimate /= 1.0 - bounceEstimate;
+
+// 		//float sunlightEnergy = 	expf(-sunlightOD * 2.0) * phases.x;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.8) * phases.y;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.3) * phases.z;
+// 		//sunlightEnergy += 		expf(-sunlightOD * 0.1) * phases.w;
+// 		float sunlightEnergy = 	rcp(sunlightOD * 2.0 + 1.0) * phases.x;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.9 + 1.0) * phases.y;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.4 + 1.0) * phases.z;
+// 		sunlightEnergy += 		rcp(sunlightOD * 0.2 + 1.0) * phases.w;
+
+// 		float skylightEnergy = CloudVolumeSkyLightOD(cloudProperties, rayPos, 0.5);
+// 		skylightEnergy = expf(-skylightEnergy) + expf(-skylightEnergy * 0.1) * 0.1;
+
+// 		float stepTransmittance = expf(-density * 0.1 * rayLength);
+// 		float cloudSample = bounceEstimate * transmittance * oneMinus(stepTransmittance);
+// 		scatteringSun += sunlightEnergy * cloudSample;
+// 		scatteringSky += skylightEnergy * cloudSample;
+// 		transmittance *= stepTransmittance;	
+// 	}
+// 	if (transmittance > 0.999) return vec4(0.0, 0.0, 0.0, 1.0);
+
+// 	vec3 scattering = scatteringSun * 64.0 * cloudProperties.sunlighting * SunAbsorptionAtAltitude(1.0);
+// 	scattering *= saturate(worldLightVector.y * 40.0);
+// 	if (cloudMoonlit) scattering = DoNightEye(scattering * MoonFlux);
+// 	scattering += scatteringSky * 0.2 * cloudProperties.skylighting * skyIlluminance;
+
+// 	// lightning
+// 	if (isLightningFlashing > 1e-2) scattering += sqr(scatteringSky) * 0.1 * lightningColor;
+
+// 	#ifdef AURORA
+// 		scattering += sqr(scatteringSky) * vec3(0.0, 0.002, 0.001) * auroraAmount;
+// 	#endif
+
+// 	float atmosFade = expf(-distance(rayPos, cameraPosition) * (0.03 + 0.02 * wetness) * rcp(cloudProperties.altitude));
+// 	//color *= 1.0 - atmosFade + transmittance * atmosFade;
+
+// 	vec3 atmos = Atmosphere(worldDir, worldSunVector, 1.0, endLength * 1e-4);
+// 	//atmos += DoNightEye(Atmosphere(worldDir, -worldSunVector, 1.0, endLength * 1e-4) * MoonFlux);
+// 	//color += (scattering + atmos) * atmosFade;
+// 	//color += scattering * atmosFade;
+
+// 	return vec4((scattering + atmos) * atmosFade, 1.0 - atmosFade + transmittance * atmosFade);
+// }

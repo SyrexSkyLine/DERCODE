@@ -57,97 +57,116 @@ float CalculateFogDensity(in vec3 rayPosition) {
 float CalculateCustomDensity(in vec3 pos) {
     float density = 0.0;
 
-    // 4. Прямой вортекс вверх на координатах (0, y, 0) до 300 высоты
+    // ──────────────────────────────────────────────────────────────
+    // Bliss-style концентрические вихревые кольца каждые 10 блоков
+    // ──────────────────────────────────────────────────────────────
+    const float baseRingRadius = 60.0;   // первое кольцо на 60 блоках
+    const float ringSpacing    = 10.0;   // каждое следующее — +10 блоков
+    const int   numRings       = 9;      // 60, 70, 80, 90, 100, 110, 120, 130, 140
+    const float ringThickness  = 4.0;
+    const float wallMinY       = 60.0;
+    const float wallMaxY       = 280.0;
+
+    if (pos.y > wallMinY && pos.y < wallMaxY) {
+        vec3 islandCenter = vec3(0.0, 70.0, 0.0);
+
+        for (int i = 0; i < numRings; ++i) {
+            float currentRadius = baseRingRadius + float(i) * ringSpacing;
+
+            // Сужение к верху (как в Bliss — кольца "всасываются" в портал)
+            float taper = 1.0 - smoothstep(wallMinY, wallMaxY, pos.y) * 0.45;
+            float taperedRadius = currentRadius * taper;
+
+            float distToRing = abs(length(pos.xz - islandCenter.xz) - taperedRadius);
+
+            if (distToRing < ringThickness) {
+                // Bliss-style многооктавный swirl
+                float angle = atan(pos.z - islandCenter.z, pos.x - islandCenter.x);
+                angle += worldTimeCounter * (0.35 + float(i) * 0.06); // разная скорость вращения
+                angle += pos.y * 0.035 + float(i) * 0.7;             // смещение фазы по высоте и индексу
+
+                float swirl  = sin(angle * 8.0)                     * 0.50;
+                swirl       += sin(angle * 16.0 + worldTimeCounter * 0.15) * 0.30;
+                swirl       += sin(angle * 32.0 + pos.y * 0.08)      * 0.20;
+                swirl        = swirl * 0.5 + 0.5; // [0;1]
+
+                // Плавное появление снизу и затухание сверху
+                float heightFactor  = smoothstep(wallMinY, wallMinY + 50.0, pos.y);
+                heightFactor       *= 1.0 - smoothstep(wallMaxY - 60.0, wallMaxY, pos.y);
+
+                float ringDens = exp(-distToRing * 0.45) * swirl * heightFactor * 0.42;
+
+                density += ringDens;
+            }
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Центральный восходящий вортекс (над драконом)
+    // ──────────────────────────────────────────────────────────────
     if (pos.y > 0.0 && pos.y < 300.0) {
         float distToAxis = length(pos.xz);
         if (distToAxis < 20.0) {
-            float angle = atan(pos.z, pos.x) + worldTimeCounter * 0.2;
+            float angle = atan(pos.z, pos.x) + worldTimeCounter * 0.22;
             float swirl = sin(angle * 10.0 + pos.y * 0.05) * 0.5 + 0.5;
             float heightFactor = smoothstep(0.0, 300.0, pos.y) * (1.0 - smoothstep(270.0, 300.0, pos.y));
-            density += exp(-distToAxis * 0.2) * swirl * heightFactor * 0.3;
+            density += exp(-distToAxis * 0.2) * swirl * heightFactor * 0.32;
         }
     }
 
-    // Новое: Столбы вортекса по кругу (8 шт., каждые 45°, радиус 45 блоков, наклон к ореолу)
-    const float numPillars = 8.0;
+    // ──────────────────────────────────────────────────────────────
+    // 8 столбов-спиралей вокруг острова (как в оригинальном Bliss)
+    // ──────────────────────────────────────────────────────────────
     const float pillarRadius = 45.0;
-    const float pillarSpacing = 360.0 / numPillars; // 45°
-    const float pillarThick = 2.0;
+    const float numPillars   = 8.0;
+    const float pillarThick  = 2.2;
+
     if (pos.y > 0.0 && pos.y < 300.0) {
         for (float i = 0.0; i < numPillars; ++i) {
-            float theta = radians(i * pillarSpacing);
-            vec2 baseXZ = vec2(cos(theta), sin(theta)) * pillarRadius;
-            vec3 basePos = vec3(baseXZ.x, 0.0, baseXZ.y);
-            
-            // Наклон к ореолу: сужение к центру по мере роста y
-            float taper = 1.0 - (pos.y / 300.0); // от 1 на y=0 до 0 на y=300
-            vec2 tiltedXZ = baseXZ * taper;
-            vec3 pillarCenter = vec3(tiltedXZ.x, pos.y, tiltedXZ.y);
-            
-            float distToPillar = length(pos.xz - pillarCenter.xz);
-            if (distToPillar < pillarThick) {
-                float angle = atan(pos.z - pillarCenter.z, pos.x - pillarCenter.x) + worldTimeCounter * 0.2 + pos.y * 0.05;
-                float swirl = sin(angle * 10.0) * 0.5 + 0.5;
-                float heightFactor = smoothstep(0.0, 300.0, pos.y) * (1.0 - smoothstep(270.0, 300.0, pos.y));
-                density += exp(-distToPillar * 0.2) * swirl * heightFactor * 0.3;
+            float theta = radians(i * 45.0);
+            vec2 base = vec2(cos(theta), sin(theta)) * pillarRadius;
+
+            // Наклон столбов к центру с высотой
+            float taper = 1.0 - (pos.y / 300.0);
+            vec2 tilted = base * taper;
+            vec3 pillarCenter = vec3(tilted.x, pos.y, tilted.y);
+
+            float dist = length(pos.xz - pillarCenter.xz);
+            if (dist < pillarThick) {
+                float angle = atan(pos.z - pillarCenter.z, pos.x - pillarCenter.x) + worldTimeCounter * 0.25 + pos.y * 0.06;
+                float swirl = sin(angle * 11.0) * 0.5 + 0.5;
+                float hFactor = smoothstep(0.0, 300.0, pos.y) * (1.0 - smoothstep(260.0, 300.0, pos.y));
+                density += exp(-dist * 0.25) * swirl * hFactor * 0.28;
             }
         }
     }
 
-    // 2. Вортекс на основном острове (предполагаем центр ~ (0,70,0)), анимация подъёма и сдвиг к (0,90,0) с наклоном
-    // Слой на ~300 блоках от origin
-    vec3 mainCenter = vec3(0.0, 70.0 + sin(worldTimeCounter * 0.1) * 20.0, 0.0); // подъём анимация
-    mainCenter.z += sin(worldTimeCounter * 0.05) * 30.0; // сдвиг/наклон в z к ~90
-    mainCenter.y += worldTimeCounter * 0.01; // медленный подъём вверх
-    float distToMain = length(pos - mainCenter);
-    float radiusCheck = length(pos.xz);
-    if (distToMain < 30.0 && abs(radiusCheck - 300.0) < 20.0) { // слой на 300 блоках
-        vec3 relPos = pos - mainCenter;
-        float angle = atan(relPos.z, relPos.x) + worldTimeCounter * 0.3 + mainCenter.y * 0.1; // swirl
+    // ──────────────────────────────────────────────────────────────
+    // Дополнительные горизонтальные вихри (оставляем как было)
+    // ──────────────────────────────────────────────────────────────
+    vec3 mainCenter = vec3(0.0, 70.0 + sin(worldTimeCounter * 0.1) * 20.0, sin(worldTimeCounter * 0.05) * 30.0);
+    mainCenter.y += worldTimeCounter * 0.01;
+    float distMain = length(pos - mainCenter);
+    float radCheck = length(pos.xz);
+    if (distMain < 30.0 && abs(radCheck - 300.0) < 20.0) {
+        vec3 rel = pos - mainCenter;
+        float angle = atan(rel.z, rel.x) + worldTimeCounter * 0.3 + mainCenter.y * 0.1;
         float swirl = sin(angle * 8.0) * 0.5 + 0.5;
-        density += exp(-distToMain * 0.1) * swirl * 0.4;
+        density += exp(-distMain * 0.1) * swirl * 0.38;
     }
 
-    // 3. Второй слой вортекса на 100 блоках от origin, наклон к (0,90,0) и (0,120,0)
-    // Два подвихря для имитации наклона
-    vec3 secondCenter1 = vec3(0.0, 90.0 + sin(worldTimeCounter * 0.08) * 10.0, 100.0); // к (0,90,0), на dist 100
-    vec3 secondCenter2 = vec3(0.0, 120.0 + sin(worldTimeCounter * 0.08) * 10.0, 0.0); // к (0,120,0), adjust z if needed
-    float dist100_1 = length(pos - secondCenter1);
-    float dist100_2 = length(pos - secondCenter2);
-    float radiusCheck100 = length(pos.xz);
-    if ((dist100_1 < 25.0 || dist100_2 < 25.0) && abs(radiusCheck100 - 100.0) < 15.0 && pos.y > 80.0 && pos.y < 130.0) {
-        float angle1 = atan(pos.z - 100.0, pos.x) + worldTimeCounter * 0.15; // swirl для первого
-        float swirl1 = sin(angle1 * 6.0 + pos.y * 0.2) * 0.5 + 0.5;
-        float angle2 = atan(pos.z, pos.x) + worldTimeCounter * 0.15; // для второго
-        float swirl2 = sin(angle2 * 6.0 + pos.y * 0.2) * 0.5 + 0.5;
-        density += (exp(-dist100_1 * 0.15) * swirl1 + exp(-dist100_2 * 0.15) * swirl2) * 0.25 * exp(-(pos.y - 105.0) * (pos.y - 105.0) * 0.05);
-    }
-
-    // Новое: Стена вортекса на основном острове (как в Bliss End-стиле: swirling cylindrical wall, привязка к ореолу)
-    const vec3 islandCenter = vec3(0.0, 70.0, 0.0);
-    const float wallRadius = 80.0;
-    const float wallThickness = 10.0;
-    const float wallMinY = 60.0;
-    const float wallMaxY = 280.0;
-    if (pos.y > wallMinY && pos.y < wallMaxY) {
-        float distToWall = abs(length(pos.xz - islandCenter.xz) - wallRadius);
-        if (distToWall < wallThickness) {
-            // Привязка к ореолу: сужение верха к центру
-            float wallTaper = 1.0 - smoothstep(wallMinY, wallMaxY, pos.y) * 0.3; // лёгкое сужение на верху
-            float adjustedRadius = wallRadius * wallTaper;
-            float adjustedDist = abs(length(pos.xz - islandCenter.xz) - adjustedRadius);
-            if (adjustedDist < wallThickness * 1.2) { // чуть шире для taper
-                float angle = atan(pos.z - islandCenter.z, pos.x - islandCenter.x) + worldTimeCounter * 0.4 + pos.y * 0.03;
-                // Multi-octave swirl как в Bliss-style End fog
-                float swirl = 0.0;
-                swirl += sin(angle * 8.0 + worldTimeCounter * 0.1) * 0.5;
-                swirl += sin(angle * 16.0 + worldTimeCounter * 0.2 + pos.y * 0.1) * 0.3;
-                swirl = (swirl + 1.0) * 0.5; // нормализация
-                float heightFactor = smoothstep(wallMinY, wallMaxY, pos.y) * (1.0 - smoothstep(240.0, wallMaxY, pos.y));
-                density += exp(-adjustedDist * 0.3) * swirl * heightFactor * 0.35;
-                // Лёгкий цветовой тинт для End (фиолетовый, добавь в fogColor если нужно: fogColor += vec3(0.2, 0.0, 0.4) * density * 0.1;)
-            }
-        }
+    // Второй слой на ~100 блоках
+    vec3 sec1 = vec3(0.0, 90.0 + sin(worldTimeCounter * 0.08) * 10.0, 100.0);
+    vec3 sec2 = vec3(0.0, 120.0 + sin(worldTimeCounter * 0.08) * 10.0, 0.0);
+    float d1 = length(pos - sec1);
+    float d2 = length(pos - sec2);
+    float rad100 = length(pos.xz);
+    if ((d1 < 25.0 || d2 < 25.0) && abs(rad100 - 100.0) < 15.0 && pos.y > 80.0 && pos.y < 130.0) {
+        float a1 = atan(pos.z - 100.0, pos.x) + worldTimeCounter * 0.15;
+        float a2 = atan(pos.z, pos.x) + worldTimeCounter * 0.15;
+        float s1 = sin(a1 * 6.0 + pos.y * 0.2) * 0.5 + 0.5;
+        float s2 = sin(a2 * 6.0 + pos.y * 0.2) * 0.5 + 0.5;
+        density += (exp(-d1 * 0.15) * s1 + exp(-d2 * 0.15) * s2) * 0.26 * exp(-(pos.y - 105.0) * (pos.y - 105.0) * 0.05);
     }
 
     return density;

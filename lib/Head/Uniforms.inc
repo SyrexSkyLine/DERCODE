@@ -13,10 +13,6 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
-uniform vec3 sunVec;
-uniform vec3 shadowLightVector;
-
-uniform float SUNLIGHT_INTENSITY=1.0;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform float nightVision;
@@ -43,7 +39,6 @@ uniform vec3 previousCameraPosition;
 uniform vec3 worldSunVector;
 uniform vec3 worldLightVector;
 uniform vec3 waterAbsorption;
-
 
 uniform int frameCounter;
 uniform int isEyeInWater;

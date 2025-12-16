@@ -5,7 +5,7 @@
 
 const float shadowDistanceRenderMul = 1.0; // [-1.0 1.0]
 
-const int shadowMapResolution = 2048;  // Shadowmap resolution [128|notrecomend| 512 1024 1514 2048 4096 8192 16384 32768 48128 84000]
+const int shadowMapResolution = 2048;  // Shadowmap resolution [1024 1536 2048 4096 8192 16384 32768]
 const float	shadowDistance	  = 192.0; // [64.0 80.0 96.0 112.0 128.0 160.0 192.0 224.0 256.0 320.0 384.0 512.0 768.0 1024.0 2048.0 4096.0 8192.0 16384.0 32768.0 65536.0]
 
 const float realShadowMapRes = shadowMapResolution * MC_SHADOW_QUALITY;
