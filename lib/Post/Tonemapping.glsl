@@ -1,19 +1,42 @@
+// === Конфигурация Reinhard Extended ===
+const float SHOULDER_STRENGTH = 0.22;  // Настройка плеча
+const float WHITE_POINT       = 4.0;   // Точка белого (в линейном пространстве)
 
+const float oneMinusShoulder = 1.0 - SHOULDER_STRENGTH;
+const float shoulderFactor = oneMinusShoulder * 3.0;
+const float shoulderWhitePointFactor = oneMinusShoulder / (WHITE_POINT * WHITE_POINT);
+
+// === Переиспользуемая функция яркости (если нет GetLuminance) ===
+#ifndef GetLuminance
+float GetLuminance(in vec3 col) {
+    return dot(col, vec3(0.2126, 0.7152, 0.0722));
+}
+#endif
+
+// === Сумма компонент (для Reinhard Extended) ===
+float sumOf(in vec3 v) {
+    return v.r + v.g + v.b;
+}
+
+// === Твои матрицы перекрытия конусов ===
 const float overlap = 0.2;
-
 const float rgOverlap = 0.1 * overlap;
 const float rbOverlap = 0.01 * overlap;
 const float gbOverlap = 0.04 * overlap;
 
-const mat3 coneOverlap = mat3(1.0, 		 rgOverlap, rbOverlap,
-							  rgOverlap, 1.0, 		gbOverlap,
-							  rbOverlap, rgOverlap, 1.0);
+const mat3 coneOverlap = mat3(
+    1.0,        rgOverlap, rbOverlap,
+    rgOverlap,  1.0,       gbOverlap,
+    rbOverlap,  rgOverlap, 1.0
+);
 
-const mat3 coneOverlapInverse = mat3(1.0 + rgOverlap + rbOverlap, -rgOverlap, 				   -rbOverlap,
-									 -rgOverlap, 				  1.0 + rgOverlap + gbOverlap, -gbOverlap,
-									 -rbOverlap, 				  -rgOverlap, 				   1.0 + rbOverlap + rgOverlap);
+const mat3 coneOverlapInverse = mat3(
+    1.0 + rgOverlap + rbOverlap, -rgOverlap,                  -rbOverlap,
+    -rgOverlap,                  1.0 + rgOverlap + gbOverlap, -gbOverlap,
+    -rbOverlap,                  -rgOverlap,                  1.0 + rbOverlap + rgOverlap
+);
 
-// ACES
+// === ACES матрицы (если используются) ===
 const mat3 ACESInputMat = mat3(
     0.59719, 0.35458, 0.04823,
     0.07600, 0.90834, 0.01566,
@@ -26,77 +49,68 @@ const mat3 ACESOutputMat = mat3(
     -0.00327, -0.07276,  1.07602
 );
 
-vec3 SEUSTonemap(in vec3 color)
-{
-	color *= 1.1;
+// === Вспомогательные функции ===
+vec3 saturate(in vec3 x) { return clamp(x, 0.0, 1.0); }
+vec3 max0(in vec3 x) { return max(x, vec3(0.0)); }
+float oneMinus(float x) { return 1.0 - x; }
 
-	color *= coneOverlap;
 
-	const float p = 1.5;
-	color = pow(color, vec3(p));
-	color = color / (1.0 + color);
-	color = pow(color, vec3((1.0 / GAMMA) / p));
 
-	color *= coneOverlapInverse;
-	//color = saturate(color);
 
-	{
-		const float a = 0.3;
-		float l = curve(a);
+// SESUS 
+vec3 SEUSTonemap(in vec3 color) {
+    color *= 1.1;
+    color *= coneOverlap;
 
-		vec3 c = color * oneMinus(a) + a;
-		
-		color = curve(c);
-		color -= l;
-		color /= oneMinus(l);
-		color = max0(color);
-		//color = pow(color, vec3(1.0));
-	}
+    const float p = 1.5;
+    color = pow(color, vec3(p));
+    color = color / (1.0 + color);
+    color = pow(color, vec3((1.0 / GAMMA) / p));
 
-	{
-		vec3 c = color;
-		color = mix(color, curve(c), vec3(0.2));
-	}
+    color *= coneOverlapInverse;
 
-	return color;
+    {
+        const float a = 0.3;
+        float l = curve(a);
+        vec3 c = color * oneMinus(a) + a;
+        color = curve(c);
+        color -= l;
+        color /= oneMinus(l);
+        color = max0(color);
+    }
+
+    {
+        vec3 c = color;
+        color = mix(color, curve(c), vec3(0.2));
+    }
+
+    return color;
 }
 
+// HABLE
+vec3 HableTonemap(in vec3 x) {
+    const float p = 3.0;
+    x = x * coneOverlap;
+    x *= 1.3;
 
-/////////////////////////////////////////////////////////////////////////////////
-// Tonemapping by John Hable
-vec3 HableTonemap(in vec3 x)
-{
-	const float p = 3.0;
-	
-	x = x * coneOverlap;
+    const float A = 0.15, B = 0.50, C = 0.10, D = 0.20, E = 0.00, F = 0.30;
 
-	x *= 1.3;
+    x = pow(x, vec3(p));
+    vec3 result = pow((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F), vec3(1.0 / p)) - E/F;
+    result = saturate(result);
+    result = result * coneOverlapInverse;
 
-	const float A = 0.15;
-	const float B = 0.50;
-	const float C = 0.10;
-	const float D = 0.20;
-	const float E = 0.00;
-	const float F = 0.30;
-
-	x = pow(x, vec3(p));
-
-   	vec3 result = pow((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F), vec3(1.0 / p))-E/F;
-   	result = saturate(result);
-
-   	result = result * coneOverlapInverse;
-
-   	return result;
+    return result;
 }
-/////////////////////////////////////////////////////////////////////////////////
 
+// UCHIMURA
 vec3 UchimuraTonemap(in vec3 color) {
-    const float maxDisplayBrightness = 1.2;  // max display brightness Default:1.2
-    const float contrast             = 0.75;  // contrast Default:0.625
-    const float linearStart          = 0.15;  // linear section start Default:0.1
-    const float linearLength         = 0.02;  // linear section length Default:0.0
-    const float black                = 1.4;  // black Default:1.33
-    const float pedestal             = 0.0; // pedestal
+    const float maxDisplayBrightness = 1.2;
+    const float contrast             = 0.75;
+    const float linearStart          = 0.15;
+    const float linearLength         = 0.02;
+    const float black                = 1.4;
+    const float pedestal             = 0.0;
 
     float l0 = ((maxDisplayBrightness - linearStart) * linearLength) / contrast;
     float L0 = linearStart - linearStart / contrast;
@@ -110,108 +124,105 @@ vec3 UchimuraTonemap(in vec3 color) {
     vec3 w2 = step(linearStart + l0, color);
     vec3 w1 = 1.0 - w0 - w2;
 
-	vec3 T = linearStart * pow(color / vec3(linearStart), vec3(black)) + vec3(pedestal);
-    vec3 S = maxDisplayBrightness - (maxDisplayBrightness - S1) * expf(CP * (color - S0));
+    vec3 T = linearStart * pow(color / vec3(linearStart), vec3(black)) + vec3(pedestal);
+    vec3 S = maxDisplayBrightness - (maxDisplayBrightness - S1) * exp(CP * (color - S0));
     vec3 L = linearStart + contrast * (color - linearStart);
 
-	color *= coneOverlap;
-
+    color *= coneOverlap;
     color = T * w0 + L * w1 + S * w2;
-
-	color *= coneOverlapInverse;
-    //color = saturate(color);
-
-	return color;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-//	ACES Fitting by Stephen Hill
-vec3 RRTAndODTFit(in vec3 v)
-{
-    vec3 a = v * (v + 0.0245786f) - 0.000090537f;
-    vec3 b = v * (v + 0.4329510f) + 0.238081f;
-    return a / b;
-}
-
-vec3 ACESTonemap2(in vec3 color)
-{
-	//color *= 1.4;
-	color *= coneOverlap;
-
-	//color = color * ACESInputMat;
-
-    // Apply RRT and ODT
-    color = RRTAndODTFit(color);
-
-	color *= coneOverlapInverse;
-
-    // Clamp to [0, 1]
-	//color = color * ACESOutputMat;
-    color = saturate(color);
+    color *= coneOverlapInverse;
 
     return color;
 }
-/////////////////////////////////////////////////////////////////////////////////
 
-vec3 LottesTonemap(in vec3 color)
-{
-	color *= 5.0;  // Default: 5.0
-
-	// float peak = max(max(color.r, color.g), color.b);
-	float peak = GetLuminance(color);
-	vec3 ratio = color / peak;
-
-	//Tonemap here
-	const float contrast = 1.0; // Default: 1.1
-	const float shoulder = 1.0;
-	const float b = 1.0;	//Clipping point
-	const float c = 3.0;	//Speed of compression. Default: 5.0
-
-	peak = pow(peak, 1.6);
-
-	float x = peak;
-	float z = pow(x, contrast);
-	peak = z / (pow(z, shoulder) * b + c);
-
-	peak = pow(peak, 1.0 / 1.6);
-
-	vec3 tonemapped = peak * ratio;
-
-	float tonemappedMaximum = GetLuminance(tonemapped);
-	vec3 crosstalk = vec3(5.0, 0.5, 5.0) * 2.0;
-	float saturation = 0.9;  // Default: 1.1
-	float crossSaturation = 1280.0;  // Default: 1114.0
-
-	ratio = pow(ratio, vec3(saturation / crossSaturation));
-	ratio = mix(ratio, vec3(1.0), pow(vec3(tonemappedMaximum), crosstalk));
-	ratio = pow(ratio, vec3(crossSaturation));
-
-	vec3 outputColor = peak * ratio;
-
-	return outputColor;
+// 4. ACES Fit
+vec3 RRTAndODTFit(in vec3 v) {
+    vec3 a = v * (v + 0.0245786) - 0.000090537;
+    vec3 b = v * (0.4329510 * v + 0.238081);
+    return a / b;
 }
 
-vec3 ACESTonemap(in vec3 color)
-{
-	color *= 0.4;
+vec3 ACESTonemap2(in vec3 color) {
+    color *= coneOverlap;
+    color = RRTAndODTFit(color);
+    color *= coneOverlapInverse;
+    return saturate(color);
+}
 
-	vec3 crosstalk = vec3(0.05, 0.2, 0.05) * 2.9;
+// 5. Lottes
+vec3 LottesTonemap(in vec3 color) {
+    color *= 5.0;
+    float peak = GetLuminance(color);
+    vec3 ratio = color / peak;
 
-	float avgColor = GetLuminance(color.rgb);
-	const float p = 1.0;
-	color = pow(color, vec3(p));
-	color = (color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14);
-	color = pow(color, vec3(1.0 / p));
+    const float contrast = 1.0;
+    const float shoulder = 1.0;
+    const float b = 1.0;
+    const float c = 3.0;
 
-	float avgColorTonemapped = GetLuminance(color.rgb);
+    peak = pow(peak, 1.6);
+    float x = peak;
+    float z = pow(x, contrast);
+    peak = z / (pow(z, shoulder) * b + c);
+    peak = pow(peak, 1.0 / 1.6);
 
-	color = saturate(color);
-	color = pow(color, vec3(0.85));
+    vec3 tonemapped = peak * ratio;
+    float tonemappedMaximum = GetLuminance(tonemapped);
 
-	return color;
+    vec3 crosstalk = vec3(5.0, 0.5, 5.0) * 2.0;
+    float saturation = 0.9;
+    float crossSaturation = 1280.0;
+
+    ratio = pow(ratio, vec3(saturation / crossSaturation));
+    ratio = mix(ratio, vec3(1.0), pow(vec3(tonemappedMaximum), crosstalk));
+    ratio = pow(ratio, vec3(crossSaturation));
+
+    return peak * ratio;
+}
+
+// 6.  ACES
+vec3 ACESTonemap(in vec3 color) {
+    color *= 0.4;
+    vec3 crosstalk = vec3(0.05, 0.2, 0.05) * 2.9;
+    float avgColor = GetLuminance(color);
+    const float p = 1.0;
+    color = pow(color, vec3(p));
+    color = (color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14);
+    color = pow(color, vec3(1.0 / p));
+    color = saturate(color);
+    color = pow(color, vec3(0.85));
+    return color;
+}
+
+// 7. Reinhard Extended
+vec3 ModifiedReinhardExtended(in vec3 color) {
+    color *= EXPOSURE;  
+    color *= coneOverlap;
+
+    float sumCol = sumOf(color);
+    vec3 tonemapped = color * ((3.0 + sumCol * shoulderWhitePointFactor) / (shoulderFactor + sumCol));
+
+    tonemapped *= coneOverlapInverse;
+    return saturate(tonemapped);
+}
+
+// REINHARD
+vec3 ModifiedReinhardJodieExtended(in vec3 color) {
+    color *= EXPOSURE;
+    color *= coneOverlap;
+
+    float sumCol = sumOf(color);
+
+    vec3 reinhardColorFactor = color * ((1.0 + color * shoulderWhitePointFactor) / (oneMinusShoulder + color));
+    vec3 reinhardLumaFactor  = color * ((3.0 + sumCol * shoulderWhitePointFactor) / (shoulderFactor + sumCol));
+
+    vec3 result = (reinhardColorFactor - reinhardLumaFactor) * reinhardColorFactor + reinhardLumaFactor;
+
+    result *= coneOverlapInverse;
+    return saturate(result);
 }
 
 
 vec3 None(in vec3 color) {
-	return color;
+    return color;
 }
